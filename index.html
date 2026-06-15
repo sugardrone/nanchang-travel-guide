@@ -1195,31 +1195,89 @@ function showToast(msg) {
 }
 
 // ===== LOAD DATA =====
+// 优先级: localStorage(本地编辑) > GitHub(远程数据) > 默认数据
 async function loadData() {
+  // 1. 先从 localStorage 加载（本地编辑永远最新）
+  const saved = localStorage.getItem('nanchang-travel-data');
+  if (saved) {
+    try {
+      currentData = JSON.parse(saved);
+      console.log('✅ Loaded from localStorage');
+      renderAllTimelines();
+      // 后台静默同步 GitHub（不阻塞渲染）
+      syncFromGitHub();
+      return;
+    } catch(e) { console.log('⚠️ localStorage parse error'); }
+  }
+
+  // 2. localStorage 为空，从 GitHub 拉取
   try {
     const resp = await fetch(DATA_URL + '?t=' + Date.now());
     if (resp.ok) {
       currentData = await resp.json();
       await getFileSHA();
       localStorage.setItem('nanchang-travel-data', JSON.stringify(currentData));
-      console.log('✅ Loaded from GitHub');
+      console.log('✅ Loaded from GitHub (first visit)');
       renderAllTimelines();
       return;
     }
-  } catch(e) {
-    console.log('⚠️ GitHub fetch failed, trying localStorage');
-  }
+  } catch(e) { console.log('⚠️ GitHub fetch failed'); }
 
-  const saved = localStorage.getItem('nanchang-travel-data');
-  if (saved) {
-    try { currentData = JSON.parse(saved); } catch(e) { currentData = getDefaultData(); }
-  } else {
-    currentData = getDefaultData();
-  }
-  await getFileSHA();
+  // 3. 都失败，用默认数据
+  currentData = getDefaultData();
   renderAllTimelines();
 }
 
+// 后台同步：GitHub 有新数据时提示用户
+async function syncFromGitHub() {
+  try {
+    const resp = await fetch(DATA_URL + '?t=' + Date.now());
+    if (!resp.ok) return;
+    const remoteData = await resp.json();
+    await getFileSHA();
+
+    // 比较是否有差异
+    const localJson = JSON.stringify(currentData);
+    const remoteJson = JSON.stringify(remoteData);
+    if (localJson !== remoteJson) {
+      // 有差异 → 提示用户
+      showToast('📥 检测到远程更新，点击导入');
+      // 在导出按钮旁显示合并按钮
+      showMergeOption(remoteData);
+    }
+  } catch(e) { /* 静默失败 */ }
+}
+
+function showMergeOption(remoteData) {
+  let mergeBar = document.getElementById('mergeBar');
+  if (!mergeBar) {
+    mergeBar = document.createElement('div');
+    mergeBar.id = 'mergeBar';
+    mergeBar.className = 'export-bar';
+    mergeBar.style.display = 'flex';
+    mergeBar.innerHTML = `
+      <button class="export-btn green" onclick="mergeRemoteData()">📥 导入远程最新版</button>
+      <button class="export-btn" onclick="this.parentElement.style.display='none'">忽略</button>
+    `;
+    const saveArea = document.getElementById('saveArea');
+    if (saveArea && saveArea.parentNode) {
+      saveArea.parentNode.insertBefore(mergeBar, saveArea.nextSibling);
+    }
+  }
+  mergeBar.dataset.remoteData = JSON.stringify(remoteData);
+  mergeBar.style.display = 'flex';
+}
+
+function mergeRemoteData() {
+  const mergeBar = document.getElementById('mergeBar');
+  if (!mergeBar || !mergeBar.dataset.remoteData) return;
+  currentData = JSON.parse(mergeBar.dataset.remoteData);
+  localStorage.setItem('nanchang-travel-data', JSON.stringify(currentData));
+  mergeBar.style.display = 'none';
+  renderAllTimelines();
+  if (mapInitialized) renderMapFromData();
+  showToast('✅ 已导入远程最新数据');
+}
 async function getFileSHA() {
   const token = getToken();
   if (!token) return;
@@ -1430,9 +1488,14 @@ async function doSaveToGitHub() {
 
   syncDataFromDOM();
   const json = JSON.stringify(currentData, null, 2);
+
+  // 1. 先保存到 localStorage（立即生效）
+  localStorage.setItem('nanchang-travel-data', json);
+  showToast('💾 已保存到本地');
+
   const btn = document.getElementById('saveGithubBtn');
   const orig = btn.textContent;
-  btn.textContent = '⏳ 保存中...';
+  btn.textContent = '⏳ 同步中...';
   btn.disabled = true;
 
   try {
@@ -1454,7 +1517,6 @@ async function doSaveToGitHub() {
     if (resp.ok) {
       const d = await resp.json();
       dataSHA = d.content.sha;
-      localStorage.setItem('nanchang-travel-data', json);
       showToast('✅ 已同步到 GitHub，约1分钟生效');
     } else {
       const err = await resp.json();
