@@ -751,58 +751,13 @@
   <!-- OVERVIEW -->
   <div class="section active" id="sec-overview">
     <div class="overview-header">
-      <h2>📋 行程总览</h2>
-      <p>盛夏出行 · 注意防暑防晒</p>
+      <h2 class="edit-field"><input value="📋 行程总览" data-field="overviewTitle" style="text-align:center;font-family:'Noto Serif SC',serif;font-size:2rem;border:none;background:transparent;width:100%;"></h2>
+      <p class="edit-field"><input value="盛夏出行 · 注意防暑防晒" data-field="overviewSubtitle" style="text-align:center;color:#666;border:none;background:transparent;width:100%;"></p>
     </div>
 
-    <div class="info-grid">
-      <div class="info-card">
-        <h3>🚄 交通</h3>
-        <ul>
-          <li>绍兴北→杭州东→南昌西（中转）</li>
-          <li>推荐 G7436+G223，10:38到站</li>
-          <li>二等座合计约 ¥3xx/人</li>
-          <li>南昌市内4条地铁线，建议买三日票¥32</li>
-        </ul>
-      </div>
-      <div class="info-card">
-        <h3>🏨 住宿</h3>
-        <ul>
-          <li>麗枫酒店（万寿宫站）— 推荐</li>
-          <li>地铁1号线万寿宫站100米</li>
-          <li>步行至滕王阁10min、万寿宫5min</li>
-          <li>双床房 ¥260–350/晚，2间4晚约¥2,100–2,800</li>
-        </ul>
-      </div>
-      <div class="info-card">
-        <h3>🎫 需预约</h3>
-        <ul>
-          <li>八一起义纪念馆 — 微信小程序提前7天</li>
-          <li>海昏侯遗址公园 — 线上实名预约</li>
-          <li>江西省博物馆 — 微信预约</li>
-          <li>滕王阁 — 旺季¥50/人，背诵序免票</li>
-        </ul>
-      </div>
-      <div class="info-card">
-        <h3>🌡️ 防暑提醒</h3>
-        <ul>
-          <li>7月南昌38°C+，四大火炉之一</li>
-          <li>备好防晒霜、遮阳伞、充足饮水</li>
-          <li>行程安排「早晚户外、午间室内」</li>
-          <li>湿地公园/海昏侯户外时间长，注意</li>
-        </ul>
-      </div>
-    </div>
+    <div class="info-grid" id="overviewCards"></div>
 
-    <table class="budget-table">
-      <tr><th>项目</th><th>5人合计</th><th>人均</th></tr>
-      <tr><td>🚄 高铁往返</td><td>~¥3,300</td><td>~¥660</td></tr>
-      <tr><td>🏨 住宿（4晚×2间）</td><td>~¥2,100–2,800</td><td>~¥420–560</td></tr>
-      <tr><td>🎫 门票</td><td>~¥750–1,000</td><td>~¥150–200</td></tr>
-      <tr><td>🍜 餐饮（5天）</td><td>~¥2,500–3,500</td><td>~¥500–700</td></tr>
-      <tr><td>🚕 市内交通</td><td>~¥500–700</td><td>~¥100–140</td></tr>
-      <tr><td>💰 合计</td><td>~¥9,150–11,300</td><td>~¥1,830–2,260</td></tr>
-    </table>
+    <table class="budget-table" id="budgetTable"></table>
 
     <div class="export-bar" id="saveArea" style="display:none;">
       <button class="export-btn green" id="saveGithubBtn" onclick="saveToGitHub()">☁️ 同步到 GitHub</button>
@@ -1056,6 +1011,7 @@ async function getFileSHA() {
 
 // ===== RENDER TIMELINES FROM DATA =====
 function renderAllTimelines() {
+  renderOverview();
   for (let day = 1; day <= 5; day++) {
     renderTimeline('day' + day);
   }
@@ -1098,7 +1054,121 @@ function escHtml(s) {
 }
 
 function getDefaultData() {
-  return { day1: [], day2: [], day3: [], day4: [], day5: [] };
+  return {
+    overview: {
+      title: '📋 行程总览',
+      subtitle: '盛夏出行 · 注意防暑防晒',
+      cards: [
+        { icon: '🚄', title: '交通', items: ['绍兴北→杭州东→南昌西（中转）', '推荐 G7436+G223，10:38到站', '二等座合计约 ¥3xx/人', '南昌市内4条地铁线，建议买三日票¥32'] },
+        { icon: '🏨', title: '住宿', items: ['麗枫酒店（万寿宫站）— 推荐', '地铁1号线万寿宫站100米', '步行至滕王阁10min、万寿宫5min', '双床房 ¥260–350/晚，2间4晚约¥2,100–2,800'] },
+        { icon: '🎫', title: '需预约', items: ['八一起义纪念馆 — 微信小程序提前7天', '海昏侯遗址公园 — 线上实名预约', '江西省博物馆 — 微信预约', '滕王阁 — 旺季¥50/人，背诵序免票'] },
+        { icon: '🌡️', title: '防暑提醒', items: ['7月南昌38°C+，四大火炉之一', '备好防晒霜、遮阳伞、充足饮水', '行程安排「早晚户外、午间室内」', '湿地公园/海昏侯户外时间长，注意'] }
+      ],
+      budget: [
+        { item: '🚄 高铁往返', total: '~¥3,300', per: '~¥660' },
+        { item: '🏨 住宿（4晚×2间）', total: '~¥2,100–2,800', per: '~¥420–560' },
+        { item: '🎫 门票', total: '~¥750–1,000', per: '~¥150–200' },
+        { item: '🍜 餐饮（5天）', total: '~¥2,500–3,500', per: '~¥500–700' },
+        { item: '🚕 市内交通', total: '~¥500–700', per: '~¥100–140' },
+        { item: '💰 合计', total: '~¥9,150–11,300', per: '~¥1,830–2,260' }
+      ]
+    },
+    day1: [], day2: [], day3: [], day4: [], day5: []
+  };
+}
+
+// ===== RENDER OVERVIEW =====
+function renderOverview() {
+  if (!currentData.overview) {
+    currentData.overview = getDefaultData().overview;
+  }
+  const ov = currentData.overview;
+
+  // Title & subtitle
+  const titleInput = document.querySelector('[data-field="overviewTitle"]');
+  const subInput = document.querySelector('[data-field="overviewSubtitle"]');
+  if (titleInput) titleInput.value = ov.title || '';
+  if (subInput) subInput.value = ov.subtitle || '';
+
+  // Info cards
+  const cardsEl = document.getElementById('overviewCards');
+  if (cardsEl) {
+    cardsEl.innerHTML = '';
+    (ov.cards || []).forEach((card, ci) => {
+      const div = document.createElement('div');
+      div.className = 'info-card';
+      div.innerHTML = `
+        <h3 class="edit-field"><input value="${escHtml(card.icon + ' ' + card.title)}" data-field="cardTitle" data-ci="${ci}" style="font-size:1rem;font-weight:600;border:none;background:transparent;width:100%;"></h3>
+        <ul class="edit-field"><textarea data-field="cardItems" data-ci="${ci}" style="width:100%;border:1px solid transparent;background:transparent;font-size:0.9rem;color:#555;line-height:1.7;resize:vertical;min-height:4rem;padding:2px;">${escHtml((card.items||[]).join('\n'))}</textarea></ul>
+      `;
+      cardsEl.appendChild(div);
+    });
+    // Add card button
+    const addBtn = document.createElement('button');
+    addBtn.className = 'add-item-btn';
+    addBtn.textContent = '+ 添加信息卡片';
+    addBtn.onclick = () => {
+      ov.cards = ov.cards || [];
+      ov.cards.push({ icon: '📌', title: '新卡片', items: ['内容1', '内容2'] });
+      renderOverview();
+    };
+    cardsEl.appendChild(addBtn);
+  }
+
+  // Budget table
+  const tableEl = document.getElementById('budgetTable');
+  if (tableEl) {
+    let html = '<tr><th>项目</th><th>5人合计</th><th>人均</th></tr>';
+    (ov.budget || []).forEach((row, ri) => {
+      const isLast = ri === (ov.budget.length - 1);
+      html += `<tr>
+        <td class="edit-field"><input value="${escHtml(row.item)}" data-field="budgetItem" data-ri="${ri}" style="width:100%;border:none;background:transparent;font-size:0.95rem;${isLast?'font-weight:700':''}"></td>
+        <td class="edit-field"><input value="${escHtml(row.total)}" data-field="budgetTotal" data-ri="${ri}" style="width:100%;border:none;background:transparent;font-size:0.95rem;${isLast?'font-weight:700':''}"></td>
+        <td class="edit-field"><input value="${escHtml(row.per)}" data-field="budgetPer" data-ri="${ri}" style="width:100%;border:none;background:transparent;font-size:0.95rem;${isLast?'font-weight:700':''}"></td>
+      </tr>`;
+    });
+    tableEl.innerHTML = html;
+  }
+}
+
+function syncOverviewFromDOM() {
+  if (!currentData.overview) currentData.overview = getDefaultData().overview;
+  const ov = currentData.overview;
+
+  const titleInput = document.querySelector('[data-field="overviewTitle"]');
+  const subInput = document.querySelector('[data-field="overviewSubtitle"]');
+  if (titleInput) ov.title = titleInput.value;
+  if (subInput) ov.subtitle = subInput.value;
+
+  // Cards
+  const cardTitles = document.querySelectorAll('[data-field="cardTitle"]');
+  const cardItems = document.querySelectorAll('[data-field="cardItems"]');
+  ov.cards = [];
+  cardTitles.forEach((el, i) => {
+    const ci = parseInt(el.dataset.ci);
+    const itemsText = cardItems[i] ? cardItems[i].value : '';
+    const iconTitle = el.value || '';
+    const spaceIdx = iconTitle.indexOf(' ');
+    const icon = spaceIdx > 0 ? iconTitle.substring(0, spaceIdx) : '📌';
+    const title = spaceIdx > 0 ? iconTitle.substring(spaceIdx + 1) : iconTitle;
+    ov.cards.push({
+      icon, title,
+      items: itemsText.split('\n').filter(s => s.trim())
+    });
+  });
+
+  // Budget
+  const bItems = document.querySelectorAll('[data-field="budgetItem"]');
+  const bTotals = document.querySelectorAll('[data-field="budgetTotal"]');
+  const bPers = document.querySelectorAll('[data-field="budgetPer"]');
+  ov.budget = [];
+  bItems.forEach((el, i) => {
+    ov.budget.push({
+      item: el.value || '',
+      total: bTotals[i] ? bTotals[i].value : '',
+      per: bPers[i] ? bPers[i].value : ''
+    });
+  });
 }
 
 // ===== SAVE TO GITHUB =====
@@ -1205,6 +1275,7 @@ function toggleEdit() {
 }
 
 function syncDataFromDOM() {
+  syncOverviewFromDOM();
   for (let day = 1; day <= 5; day++) {
     const key = 'day' + day;
     const timeline = document.getElementById('timeline-' + key);
