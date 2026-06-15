@@ -1483,7 +1483,7 @@ function showSection(id) {
   if (id === 'map') {
     setTimeout(() => {
       initMap();
-      updateRouteInfo(currentFilter);
+      renderMapFromData();
     }, 100);
   }
 }
@@ -1502,6 +1502,7 @@ function toggleEdit() {
     syncDataFromDOM();
     localStorage.setItem('nanchang-travel-data', JSON.stringify(currentData));
     showToast('💾 已保存到本地');
+    if (mapInitialized) renderMapFromData();
   }
 }
 
@@ -1595,39 +1596,97 @@ function resetData() {
 const MAP_COLORS = ['#e74c3c','#2980b9','#27ae60','#f39c12','#8e44ad'];
 const MAP_DAY_NAMES = ['Day 1 · 水杉与落霞','Day 2 · 红色记忆','Day 3 · 海昏往事','Day 4 · 墨痕山水','Day 5 · 市井余韵'];
 
-// Location database with coordinates
-const LOCATIONS = {
-  // Day 1
-  '绍兴北站': { lat: 30.0519, lng: 120.5917, day: 1, icon: '🚄', desc: '出发站' },
-  '杭州东站': { lat: 30.2912, lng: 120.2132, day: 1, icon: '🚄', desc: '换乘站' },
-  '南昌西站': { lat: 28.6820, lng: 115.8175, day: 1, icon: '🚄', desc: '到达站' },
-  '建德观美食街': { lat: 28.6810, lng: 115.8920, day: 1, icon: '🍜', desc: '南昌老城最地道的早午餐街区' },
-  '鱼尾洲湿地公园': { lat: 28.7150, lng: 115.9280, day: 1, icon: '🌿', desc: '水杉林立、白鹭栖息的海绵城市公园' },
-  '滕王阁': { lat: 28.6813, lng: 115.8812, day: 1, icon: '🏯', desc: '江南三大名楼之一，门票¥50/人' },
-
-  // Day 2
-  '八一起义纪念馆': { lat: 28.6747, lng: 115.8894, day: 2, icon: '🏛️', desc: '免费，微信小程序提前7天预约' },
-  '八一广场': { lat: 28.6739, lng: 115.8945, day: 2, icon: '🗼', desc: '南昌城的精神坐标' },
-  '万寿宫历史文化街区': { lat: 28.6790, lng: 115.8870, day: 2, icon: '🏮', desc: '铁柱万寿宫始建于晋代，免费' },
-  '绳金塔': { lat: 28.6610, lng: 115.8950, day: 2, icon: '🗼', desc: '始建于唐代，塔高50米' },
-  '蛤蟆街夜市': { lat: 28.6680, lng: 115.8830, day: 2, icon: '🌙', desc: '南昌最市井的夜间烟火' },
-
-  // Day 3
-  '海昏侯遗址公园': { lat: 29.0301, lng: 115.9398, day: 3, icon: '⚱️', desc: '西汉列侯墓园，门票¥7x/人含观光车' },
-  '佑民寺': { lat: 28.6830, lng: 115.8920, day: 3, icon: '🙏', desc: '千年古寺，免费' },
-
-  // Day 4
-  '八大山人纪念馆': { lat: 28.6430, lng: 115.9180, day: 4, icon: '🎨', desc: '朱耷书画真迹，免费' },
-  '江西省博物馆': { lat: 28.7058, lng: 115.8818, day: 4, icon: '🏛️', desc: '商周青铜器、景德镇瓷器，免费预约' },
-  '南昌之星摩天轮': { lat: 28.6562, lng: 115.8507, day: 4, icon: '🎡', desc: '世界第三高摩天轮，¥4x–50/人' },
-
-  // Day 5
-  '秋水广场': { lat: 28.6620, lng: 115.8530, day: 5, icon: '🌊', desc: '赣江两岸景观带核心节点' }
+// ===== GEOCODE DATABASE (name → coordinates) =====
+const GEO_DB = {
+  // 交通站点
+  '绍兴北站': { lat: 30.0519, lng: 120.5917, icon: '🚄' },
+  '杭州东站': { lat: 30.2912, lng: 120.2132, icon: '🚄' },
+  '南昌西站': { lat: 28.6820, lng: 115.8175, icon: '🚄' },
+  '南昌站': { lat: 28.6610, lng: 115.8760, icon: '🚄' },
+  // 景点
+  '滕王阁': { lat: 28.6813, lng: 115.8812, icon: '🏯' },
+  '八一起义纪念馆': { lat: 28.6747, lng: 115.8894, icon: '🏛️' },
+  '八一南昌起义纪念馆': { lat: 28.6747, lng: 115.8894, icon: '🏛️' },
+  '八一广场': { lat: 28.6739, lng: 115.8945, icon: '🗼' },
+  '万寿宫历史文化街区': { lat: 28.6790, lng: 115.8870, icon: '🏮' },
+  '万寿宫街区': { lat: 28.6790, lng: 115.8870, icon: '🏮' },
+  '绳金塔': { lat: 28.6610, lng: 115.8950, icon: '🗼' },
+  '鱼尾洲湿地公园': { lat: 28.7150, lng: 115.9280, icon: '🌿' },
+  '鱼尾洲': { lat: 28.7150, lng: 115.9280, icon: '🌿' },
+  '海昏侯遗址公园': { lat: 29.0301, lng: 115.9398, icon: '⚱️' },
+  '海昏侯博物馆': { lat: 29.0301, lng: 115.9398, icon: '⚱️' },
+  '佑民寺': { lat: 28.6830, lng: 115.8920, icon: '🙏' },
+  '八大山人纪念馆': { lat: 28.6430, lng: 115.9180, icon: '🎨' },
+  '江西省博物馆': { lat: 28.7058, lng: 115.8818, icon: '🏛️' },
+  '江西省博物馆新馆': { lat: 28.7058, lng: 115.8818, icon: '🏛️' },
+  '南昌之星摩天轮': { lat: 28.6562, lng: 115.8507, icon: '🎡' },
+  '秋水广场': { lat: 28.6620, lng: 115.8530, icon: '🌊' },
+  '绿地303观光厅': { lat: 28.6630, lng: 115.8540, icon: '🏙️' },
+  // 美食街
+  '建德观美食街': { lat: 28.6810, lng: 115.8920, icon: '🍜' },
+  '蛤蟆街夜市': { lat: 28.6680, lng: 115.8830, icon: '🌙' },
+  '蛤蟆街': { lat: 28.6680, lng: 115.8830, icon: '🌙' },
+  '大士院': { lat: 28.6770, lng: 115.8900, icon: '🍜' },
+  '珠宝街': { lat: 28.6760, lng: 115.8850, icon: '🛍️' },
+  '羊子巷': { lat: 28.6720, lng: 115.8880, icon: '🍜' },
+  '系马桩街': { lat: 28.6690, lng: 115.8900, icon: '🍽️' },
+  '船山路': { lat: 28.6710, lng: 115.8860, icon: '🍽️' },
+  // 酒店
+  '麗枫酒店': { lat: 28.6795, lng: 115.8865, icon: '🏨' },
+  '麗枫酒店（南昌滕王阁万寿宫地铁站店）': { lat: 28.6795, lng: 115.8865, icon: '🏨' },
+  '全季酒店': { lat: 28.6745, lng: 115.8930, icon: '🏨' },
+  '全季酒店（南昌八一广场店）': { lat: 28.6745, lng: 115.8930, icon: '🏨' },
+  '竹子逸林酒店': { lat: 28.6640, lng: 115.9090, icon: '🏨' },
+  '宜尚酒店': { lat: 28.6720, lng: 115.9060, icon: '🏨' },
+  // 其他
+  '梅湖': { lat: 28.6440, lng: 115.9170, icon: '🏞️' },
+  '梅湖景区': { lat: 28.6440, lng: 115.9170, icon: '🏞️' },
+  '红谷滩': { lat: 28.6880, lng: 115.8600, icon: '🏙️' },
+  '万达广场': { lat: 28.6880, lng: 115.8600, icon: '🛍️' },
+  '中山路': { lat: 28.6750, lng: 115.8880, icon: '🛒' },
 };
+
+// Smart matching: try exact → partial → fallback
+function geocode(name) {
+  if (!name) return null;
+  const clean = name.replace(/[🚄🏯🏛️🗼🏮🌸🌿⚱️🙏🎨🎡🌊🍜🌙🛍️🍽️🏨🏙️🏞️🛒✨💰🆓⚠️📱💡🌅❄️🌟🎯📍]/g, '').trim();
+  // 1. Exact match
+  if (GEO_DB[clean]) return GEO_DB[clean];
+  // 2. Try partial match
+  for (const [key, val] of Object.entries(GEO_DB)) {
+    if (clean.includes(key) || key.includes(clean)) return val;
+  }
+  // 3. Try without parentheses
+  const noParen = clean.replace(/（.*?）/g, '').trim();
+  if (GEO_DB[noParen]) return GEO_DB[noParen];
+  for (const [key, val] of Object.entries(GEO_DB)) {
+    if (noParen.includes(key) || key.includes(noParen)) return val;
+  }
+  return null;
+}
+
+// Detect item type from the timeline item
+function detectItemType(item) {
+  const name = item.name || '';
+  const type = item.type || '';
+  if (type === 'transport') return 'transport';
+  if (type === 'stay' || /酒店|民宿|旅舍|客栈|入住/.test(name)) return 'hotel';
+  if (/美食|拌粉|瓦罐|餐厅|馆|街|夜市|早餐|午餐|晚餐|觅食|伴手礼/.test(name)) return 'food';
+  return 'spot';
+}
+
+// Extract location name from item (strip emojis, keep core name)
+function extractLocationName(item) {
+  let name = (item.name || '').trim();
+  // Strip leading emoji
+  name = name.replace(/^[\p{Emoji}\p{Emoji_Modifier}\p{Emoji_Component}\p{Emoji_Modifier_Base}\p{Emoji_Presentation}\u200d\ufe0f]+\s*/u, '');
+  return name.trim();
+}
 
 let map = null;
 let markers = [];
 let routes = [];
+let mapLabels = [];
 let currentFilter = 'all';
 let mapInitialized = false;
 
@@ -1635,38 +1694,94 @@ function initMap() {
   if (mapInitialized) return;
   mapInitialized = true;
 
-  map = L.map('travelMap', {
-    zoomControl: false
-  }).setView([28.68, 115.88], 12);
-
+  map = L.map('travelMap', { zoomControl: false }).setView([28.68, 115.88], 12);
   L.control.zoom({ position: 'topright' }).addTo(map);
-
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; OpenStreetMap',
     maxZoom: 18
   }).addTo(map);
 
-  renderMapMarkers();
+  renderMapFromData();
   renderMapLegend();
 }
 
-function renderMapMarkers() {
-  // Clear existing
+// Main render: reads from currentData
+function renderMapFromData() {
+  if (!map || !currentData) return;
+
+  // Clear
   markers.forEach(m => map.removeLayer(m));
   routes.forEach(r => map.removeLayer(r));
+  mapLabels.forEach(l => map.removeLayer(l));
   markers = [];
   routes = [];
+  mapLabels = [];
 
   const daysToShow = currentFilter === 'all' ? [1,2,3,4,5] : [currentFilter];
+  let allCoords = [];
 
   daysToShow.forEach(day => {
+    const key = 'day' + day;
+    const items = currentData[key] || [];
     const color = MAP_COLORS[day - 1];
-    const dayLocations = Object.entries(LOCATIONS).filter(([name, loc]) => loc.day === day);
+    const dayCoords = [];
 
-    // Draw route line
-    if (dayLocations.length > 1) {
-      const coords = dayLocations.map(([name, loc]) => [loc.lat, loc.lng]);
-      const polyline = L.polyline(coords, {
+    items.forEach((item, idx) => {
+      const locName = extractLocationName(item);
+      const geo = geocode(locName);
+      if (!geo) return;
+
+      const itemType = detectItemType(item);
+      const iconEmoji = geo.icon || (itemType === 'hotel' ? '🏨' : itemType === 'transport' ? '🚄' : itemType === 'food' ? '🍜' : '📍');
+      const labelType = itemType === 'hotel' ? '酒店' : itemType === 'transport' ? '交通' : itemType === 'food' ? '美食' : '景点';
+
+      // Custom marker with label
+      const markerHtml = `
+        <div style="position:relative;">
+          <div class="marker-icon" style="background:${color};"><span>${iconEmoji}</span></div>
+          <div style="position:absolute;top:-22px;left:50%;transform:translateX(-50%);white-space:nowrap;
+            background:${color};color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;
+            box-shadow:0 1px 4px rgba(0,0,0,0.3);pointer-events:none;">
+            ${locName.length > 8 ? locName.substring(0,8)+'…' : locName}
+          </div>
+        </div>`;
+
+      const icon = L.divIcon({
+        html: markerHtml,
+        className: 'custom-marker',
+        iconSize: [32, 32],
+        iconAnchor: [16, 32],
+        popupAnchor: [0, -36]
+      });
+
+      const priceTag = (item.tags || []).find(t => t.startsWith('price:'));
+      const tipTag = (item.tags || []).find(t => t.startsWith('tip:'));
+      const freeTag = (item.tags || []).find(t => t.startsWith('free:'));
+
+      const popupContent = `
+        <div class="popup-title">${iconEmoji} ${locName}</div>
+        <div class="popup-time">Day ${day} · ${item.time || ''}</div>
+        <div style="display:inline-block;padding:2px 8px;border-radius:999px;font-size:0.75rem;font-weight:600;
+          background:${itemType==='hotel'?'#e8f5e9':itemType==='transport'?'#e3f2fd':itemType==='food'?'#fce4ec':'#f3e5f5'};
+          color:${itemType==='hotel'?'#2e7d32':itemType==='transport'?'#1565c0':itemType==='food'?'#c62828':'#7b1fa2'};
+          margin:0.3rem 0;">${labelType}</div>
+        <div class="popup-desc">${item.desc || ''}</div>
+        ${priceTag ? '<div style="margin-top:0.3rem;font-size:0.8rem;color:#e65100;font-weight:500;">'+priceTag.split(':')[1]+'</div>' : ''}
+        ${freeTag ? '<div style="margin-top:0.2rem;font-size:0.8rem;color:#1565c0;">'+freeTag.split(':')[1]+'</div>' : ''}
+        <a class="popup-nav" href="https://uri.amap.com/marker?position=${geo.lng},${geo.lat}&name=${encodeURIComponent(locName)}" target="_blank">📍 高德导航</a>
+      `;
+
+      const marker = L.marker([geo.lat, geo.lng], { icon })
+        .bindPopup(popupContent, { maxWidth: 300, minWidth: 200 })
+        .addTo(map);
+      markers.push(marker);
+      dayCoords.push([geo.lat, geo.lng]);
+      allCoords.push([geo.lat, geo.lng]);
+    });
+
+    // Draw route line for this day
+    if (dayCoords.length > 1) {
+      const polyline = L.polyline(dayCoords, {
         color: color,
         weight: 4,
         opacity: 0.7,
@@ -1675,66 +1790,35 @@ function renderMapMarkers() {
       }).addTo(map);
       routes.push(polyline);
     }
-
-    // Add markers
-    dayLocations.forEach(([name, loc], idx) => {
-      const markerHtml = `<div class="marker-icon" style="background:${color};"><span>${loc.icon}</span></div>`;
-      const icon = L.divIcon({
-        html: markerHtml,
-        className: 'custom-marker',
-        iconSize: [32, 32],
-        iconAnchor: [16, 32],
-        popupAnchor: [0, -32]
-      });
-
-      const popupContent = `
-        <div class="popup-title">${loc.icon} ${name}</div>
-        <div class="popup-time">Day ${day} · ${MAP_DAY_NAMES[day-1].split('·')[1]?.trim() || ''}</div>
-        <div class="popup-desc">${loc.desc}</div>
-        <a class="popup-nav" href="https://uri.amap.com/marker?position=${loc.lng},${loc.lat}&name=${encodeURIComponent(name)}" target="_blank">📍 高德导航</a>
-      `;
-
-      const marker = L.marker([loc.lat, loc.lng], { icon })
-        .bindPopup(popupContent, { maxWidth: 280 })
-        .addTo(map);
-      markers.push(marker);
-    });
   });
 
   // Fit bounds
-  if (markers.length > 0) {
-    const group = L.featureGroup(markers);
-    map.fitBounds(group.getBounds().pad(0.1));
+  if (allCoords.length > 0) {
+    map.fitBounds(L.latLngBounds(allCoords).pad(0.15));
   }
+
+  updateRouteInfo(currentFilter);
 }
 
 function renderMapLegend() {
   const legend = document.getElementById('mapLegend');
   if (!legend) return;
-  let html = '<h4>图例</h4>';
-  for (let i = 0; i < 5; i++) {
-    html += `<div class="legend-item" onclick="showDayOnMap(${i+1})">
-      <div class="legend-dot" style="background:${MAP_COLORS[i]}"></div>
-      <span>Day ${i+1}</span>
-    </div>`;
-  }
-  legend.innerHTML = html;
+  legend.innerHTML = `
+    <h4>图例</h4>
+    <div class="legend-item" onclick="showDayOnMap('all')"><div class="legend-dot" style="background:#666"></div><span>全部</span></div>
+    ${[1,2,3,4,5].map(i => `<div class="legend-item" onclick="showDayOnMap(${i})"><div class="legend-dot" style="background:${MAP_COLORS[i-1]}"></div><span>Day ${i}</span></div>`).join('')}
+    <hr style="border:none;border-top:1px solid #eee;margin:0.4rem 0;">
+    <div class="legend-item"><div class="legend-line" style="background:#666"></div><span>虚线=路线</span></div>
+  `;
 }
 
 function showDayOnMap(day) {
   currentFilter = day;
-
-  // Update button states
   document.querySelectorAll('.map-ctrl-btn').forEach(btn => btn.classList.remove('active'));
   const btns = document.querySelectorAll('.map-ctrl-btn');
   if (day === 'all') btns[0].classList.add('active');
-  else btns[day].classList.add('active');
-
-  // Update route info
-  updateRouteInfo(day);
-
-  // Re-render markers
-  if (map) renderMapMarkers();
+  else if (btns[day]) btns[day].classList.add('active');
+  renderMapFromData();
 }
 
 function updateRouteInfo(day) {
@@ -1742,37 +1826,55 @@ function updateRouteInfo(day) {
   if (!infoEl) return;
 
   if (day === 'all') {
-    infoEl.innerHTML = '<h3>📍 全部行程</h3><p style="font-size:0.85rem;color:#888;">共 ' + Object.keys(LOCATIONS).length + ' 个地点，覆盖5天行程</p>';
+    let total = 0;
+    [1,2,3,4,5].forEach(d => { total += (currentData['day'+d] || []).length; });
+    infoEl.innerHTML = `<h3>📍 全部行程</h3><p style="font-size:0.85rem;color:#888;">共 ${total} 个行程节点，覆盖5天 ${markers.length} 个地点</p>`;
     return;
   }
 
-  const dayLocations = Object.entries(LOCATIONS).filter(([name, loc]) => loc.day === day);
   const color = MAP_COLORS[day - 1];
+  const items = currentData['day' + day] || [];
 
-  let stopsHtml = dayLocations.map(([name, loc], i) => {
-    let html = `<span class="route-stop" onclick="flyToLocation('${name}')">${loc.icon} ${name}</span>`;
-    if (i < dayLocations.length - 1) html += '<span class="route-arrow">→</span>';
+  let stopsHtml = items.map((item, i) => {
+    const locName = extractLocationName(item);
+    const geo = geocode(locName);
+    if (!geo) return '';
+    const icon = geo.icon || '📍';
+    let html = `<span class="route-stop" style="border-left:3px solid ${color};" onclick="flyToMarker(${markers.findIndex((m,idx) => {
+      // find corresponding marker
+      return false; // will use name match below
+    })})">${icon} ${locName}</span>`;
+    if (i < items.length - 1) html += '<span class="route-arrow">→</span>';
     return html;
-  }).join('');
+  }).filter(Boolean).join('');
 
   infoEl.innerHTML = `
     <h3 style="color:${color};">Day ${day} · ${MAP_DAY_NAMES[day-1].split('·')[1]?.trim() || ''}</h3>
     <div class="route-stops">${stopsHtml}</div>
   `;
-}
 
-function flyToLocation(name) {
-  const loc = LOCATIONS[name];
-  if (!loc || !map) return;
-  map.flyTo([loc.lat, loc.lng], 15, { duration: 1 });
-
-  // Find and open the marker popup
-  markers.forEach(m => {
-    const pos = m.getLatLng();
-    if (Math.abs(pos.lat - loc.lat) < 0.0001 && Math.abs(pos.lng - loc.lng) < 0.0001) {
-      setTimeout(() => m.openPopup(), 500);
+  // Make route stops clickable via name
+  infoEl.querySelectorAll('.route-stop').forEach((el, i) => {
+    const matchingItems = items.filter(item => geocode(extractLocationName(item)));
+    if (matchingItems[i]) {
+      const name = extractLocationName(matchingItems[i]);
+      el.onclick = () => flyToByName(name);
     }
   });
+}
+
+function flyToByName(name) {
+  const geo = geocode(name);
+  if (!geo || !map) return;
+  map.flyTo([geo.lat, geo.lng], 16, { duration: 0.8 });
+  setTimeout(() => {
+    markers.forEach(m => {
+      const pos = m.getLatLng();
+      if (Math.abs(pos.lat - geo.lat) < 0.0002 && Math.abs(pos.lng - geo.lng) < 0.0002) {
+        m.openPopup();
+      }
+    });
+  }, 600);
 }
 
 // ===== NAV SCROLL =====
