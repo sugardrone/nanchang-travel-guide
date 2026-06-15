@@ -1175,7 +1175,8 @@
 const GH_OWNER = 'sugardrone';
 const GH_REPO = 'nanchang-travel-guide';
 const DATA_FILENAME = 'data.json';
-const DATA_URL = 'https://raw.githubusercontent.com/' + GH_OWNER + '/' + GH_REPO + '/main/' + DATA_FILENAME;
+const DATA_URL_RAW = 'https://raw.githubusercontent.com/' + GH_OWNER + '/' + GH_REPO + '/main/' + DATA_FILENAME;
+const DATA_URL_API = 'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + DATA_FILENAME;
 const API_BASE = 'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/';
 
 // ===== STATE =====
@@ -1194,8 +1195,24 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 3000);
 }
 
+// 从 GitHub API 读取 data.json（比 raw 快，commit 后立即可用）
+async function fetchDataFromGitHub() {
+  const token = getToken();
+  const headers = { 'Accept': 'application/vnd.github.v3+json' };
+  if (token) headers['Authorization'] = 'token ' + token;
+
+  const resp = await fetch(DATA_URL_API + '?t=' + Date.now(), { headers });
+  if (!resp.ok) return null;
+
+  const data = await resp.json();
+  dataSHA = data.sha; // 保存 SHA 用于后续更新
+  // API 返回 base64 编码的 content
+  const decoded = decodeURIComponent(escape(atob(data.content)));
+  return JSON.parse(decoded);
+}
+
 // ===== LOAD DATA =====
-// 优先级: localStorage(本地编辑) > GitHub(远程数据) > 默认数据
+// 优先级: localStorage(本地编辑) > GitHub API(远程数据) > 默认数据
 async function loadData() {
   // 1. 先从 localStorage 加载（本地编辑永远最新）
   const saved = localStorage.getItem('nanchang-travel-data');
@@ -1210,18 +1227,17 @@ async function loadData() {
     } catch(e) { console.log('⚠️ localStorage parse error'); }
   }
 
-  // 2. localStorage 为空，从 GitHub 拉取
+  // 2. localStorage 为空，从 GitHub API 拉取（即时生效）
   try {
-    const resp = await fetch(DATA_URL + '?t=' + Date.now());
-    if (resp.ok) {
-      currentData = await resp.json();
-      await getFileSHA();
+    const remoteData = await fetchDataFromGitHub();
+    if (remoteData) {
+      currentData = remoteData;
       localStorage.setItem('nanchang-travel-data', JSON.stringify(currentData));
-      console.log('✅ Loaded from GitHub (first visit)');
+      console.log('✅ Loaded from GitHub API (first visit)');
       renderAllTimelines();
       return;
     }
-  } catch(e) { console.log('⚠️ GitHub fetch failed'); }
+  } catch(e) { console.log('⚠️ GitHub API fetch failed'); }
 
   // 3. 都失败，用默认数据
   currentData = getDefaultData();
@@ -1231,18 +1247,14 @@ async function loadData() {
 // 后台同步：GitHub 有新数据时提示用户
 async function syncFromGitHub() {
   try {
-    const resp = await fetch(DATA_URL + '?t=' + Date.now());
-    if (!resp.ok) return;
-    const remoteData = await resp.json();
-    await getFileSHA();
+    const remoteData = await fetchDataFromGitHub();
+    if (!remoteData) return;
 
     // 比较是否有差异
     const localJson = JSON.stringify(currentData);
     const remoteJson = JSON.stringify(remoteData);
     if (localJson !== remoteJson) {
-      // 有差异 → 提示用户
-      showToast('📥 检测到远程更新，点击导入');
-      // 在导出按钮旁显示合并按钮
+      showToast('📥 检测到远程更新');
       showMergeOption(remoteData);
     }
   } catch(e) { /* 静默失败 */ }
@@ -1278,19 +1290,7 @@ function mergeRemoteData() {
   if (mapInitialized) renderMapFromData();
   showToast('✅ 已导入远程最新数据');
 }
-async function getFileSHA() {
-  const token = getToken();
-  if (!token) return;
-  try {
-    const resp = await fetch(API_BASE + DATA_FILENAME, {
-      headers: { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github.v3+json' }
-    });
-    if (resp.ok) {
-      const d = await resp.json();
-      dataSHA = d.sha;
-    }
-  } catch(e) { console.log('SHA fetch failed'); }
-}
+// SHA is now fetched inside fetchDataFromGitHub()
 
 // ===== RENDER TIMELINES FROM DATA =====
 function renderAllTimelines() {
@@ -1499,7 +1499,8 @@ async function doSaveToGitHub() {
   btn.disabled = true;
 
   try {
-    await getFileSHA();
+    // SHA 已从 fetchDataFromGitHub() 获取，如果没有则先获取
+    if (!dataSHA) await fetchDataFromGitHub();
     const resp = await fetch(API_BASE + DATA_FILENAME, {
       method: 'PUT',
       headers: {
