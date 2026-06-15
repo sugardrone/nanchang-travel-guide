@@ -1,0 +1,1384 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>南昌五日慢游攻略 · 豫章故郡行</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+  
+  :root {
+    --ink: #1a1a2e;
+    --paper: #faf8f5;
+    --accent: #c0392b;
+    --accent-light: #e74c3c;
+    --gold: #d4a843;
+    --gold-light: #f0d78c;
+    --jade: #2d6a4f;
+    --jade-light: #40916c;
+    --sky: #2980b9;
+    --sky-light: #5dade2;
+    --warm: #e8d5b7;
+    --warm-light: #f5e6d0;
+    --shadow: rgba(26,26,46,0.08);
+    --shadow-md: rgba(26,26,46,0.12);
+    --radius: 12px;
+    --radius-lg: 20px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  body {
+    font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ===== HERO ===== */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%);
+    overflow: hidden;
+    padding: 2rem;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(ellipse at 30% 50%, rgba(212,168,67,0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 20%, rgba(192,57,43,0.1) 0%, transparent 40%);
+    animation: heroGlow 8s ease-in-out infinite alternate;
+  }
+
+  @keyframes heroGlow {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(-2%, 1%) scale(1.02); }
+  }
+
+  .hero-content { position: relative; z-index: 1; }
+
+  .hero-subtitle {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 1rem;
+    color: var(--gold);
+    letter-spacing: 0.3em;
+    margin-bottom: 1rem;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.2s forwards;
+  }
+
+  .hero-title {
+    font-family: 'Noto Serif SC', serif;
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.3;
+    margin-bottom: 0.5rem;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.4s forwards;
+  }
+
+  .hero-title .accent { color: var(--gold); }
+
+  .hero-poem {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 1.1rem;
+    color: rgba(255,255,255,0.7);
+    margin: 1.5rem 0;
+    font-style: italic;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.6s forwards;
+  }
+
+  .hero-meta {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 2rem;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.8s forwards;
+  }
+
+  .hero-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: rgba(255,255,255,0.8);
+    font-size: 0.95rem;
+  }
+
+  .hero-meta-item .icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+  }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgba(255,255,255,0.5);
+    font-size: 0.85rem;
+    animation: bounce 2s infinite;
+    cursor: pointer;
+    z-index: 1;
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(-8px); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ===== NAV ===== */
+  .day-nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(250,248,245,0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+    padding: 0.75rem 0;
+    transition: box-shadow 0.3s;
+  }
+
+  .day-nav.scrolled { box-shadow: 0 2px 20px var(--shadow); }
+
+  .day-nav-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0 1.5rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .day-nav-inner::-webkit-scrollbar { display: none; }
+
+  .nav-btn {
+    flex-shrink: 0;
+    padding: 0.5rem 1.2rem;
+    border: none;
+    border-radius: 999px;
+    font-family: 'Noto Sans SC', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.25s;
+    background: transparent;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+
+  .nav-btn:hover { background: var(--warm-light); }
+  .nav-btn.active {
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 2px 12px rgba(192,57,43,0.3);
+  }
+
+  .nav-btn.overview.active { background: var(--ink); }
+
+  .nav-spacer { flex: 1; }
+
+  .edit-toggle {
+    flex-shrink: 0;
+    padding: 0.5rem 1rem;
+    border: 2px solid var(--accent);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--accent);
+    font-family: 'Noto Sans SC', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+
+  .edit-toggle:hover, .edit-toggle.active {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  /* ===== MAIN ===== */
+  .main { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
+  /* ===== OVERVIEW ===== */
+  .section { display: none; }
+  .section.active { display: block; animation: fadeIn 0.4s ease; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .overview-header {
+    text-align: center;
+    padding: 3rem 0 2rem;
+  }
+
+  .overview-header h2 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .overview-header p {
+    color: #666;
+    font-size: 1rem;
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.2rem;
+    margin: 2rem 0;
+  }
+
+  .info-card {
+    background: #fff;
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    box-shadow: 0 2px 12px var(--shadow);
+    border-left: 4px solid var(--gold);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .info-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px var(--shadow-md);
+  }
+
+  .info-card h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .info-card ul {
+    list-style: none;
+    font-size: 0.9rem;
+    color: #555;
+  }
+
+  .info-card li {
+    padding: 0.3rem 0;
+    padding-left: 1.2rem;
+    position: relative;
+  }
+
+  .info-card li::before {
+    content: '·';
+    position: absolute;
+    left: 0;
+    color: var(--gold);
+    font-weight: bold;
+  }
+
+  .budget-table {
+    width: 100%;
+    background: #fff;
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: 0 2px 12px var(--shadow);
+    margin: 2rem 0;
+  }
+
+  .budget-table th {
+    background: var(--ink);
+    color: #fff;
+    padding: 1rem;
+    font-weight: 500;
+    text-align: left;
+  }
+
+  .budget-table td {
+    padding: 0.8rem 1rem;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 0.95rem;
+  }
+
+  .budget-table tr:last-child td {
+    border-bottom: none;
+    font-weight: 700;
+    background: var(--warm-light);
+  }
+
+  /* ===== DAY SECTION ===== */
+  .day-header {
+    text-align: center;
+    padding: 3rem 0 2rem;
+    position: relative;
+  }
+
+  .day-number {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 5rem;
+    font-weight: 700;
+    color: var(--warm);
+    line-height: 1;
+    opacity: 0.5;
+  }
+
+  .day-date {
+    font-size: 0.9rem;
+    color: #999;
+    margin-top: -0.5rem;
+  }
+
+  .day-title {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin: 0.5rem 0;
+  }
+
+  .day-quote {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 0.95rem;
+    color: #888;
+    font-style: italic;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+
+  /* ===== TIMELINE ===== */
+  .timeline {
+    position: relative;
+    padding-left: 2.5rem;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 0.6rem;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--warm), var(--gold), var(--warm));
+  }
+
+  .timeline-item {
+    position: relative;
+    margin-bottom: 2rem;
+    background: #fff;
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    box-shadow: 0 2px 12px var(--shadow);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .timeline-item:hover {
+    transform: translateX(4px);
+    box-shadow: 0 4px 20px var(--shadow-md);
+  }
+
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -2.15rem;
+    top: 1.8rem;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--gold);
+    border: 3px solid var(--paper);
+    box-shadow: 0 0 0 2px var(--gold);
+  }
+
+  .timeline-item.food::before { background: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+  .timeline-item.transport::before { background: var(--sky); box-shadow: 0 0 0 2px var(--sky); }
+  .timeline-item.stay::before { background: var(--jade); box-shadow: 0 0 0 2px var(--jade); }
+
+  .timeline-time {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 0.3rem;
+  }
+
+  .timeline-name {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  .timeline-desc {
+    font-size: 0.9rem;
+    color: #555;
+    line-height: 1.8;
+  }
+
+  .timeline-tags {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-top: 0.8rem;
+  }
+
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.25rem 0.7rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 500;
+  }
+
+  .tag.price { background: #fff3e0; color: #e65100; }
+  .tag.tip { background: #e8f5e9; color: #2e7d32; }
+  .tag.warn { background: #fce4ec; color: #c62828; }
+  .tag.free { background: #e3f2fd; color: #1565c0; }
+  .tag.book { background: #f3e5f5; color: #7b1fa2; }
+
+  /* ===== EDIT MODE ===== */
+  .edit-mode .timeline-item { border: 2px dashed transparent; transition: border-color 0.2s; }
+  .edit-mode .timeline-item:hover { border-color: var(--gold); }
+
+  .edit-field {
+    position: relative;
+  }
+
+  .edit-field textarea,
+  .edit-field input {
+    width: 100%;
+    border: 1px solid transparent;
+    background: transparent;
+    font-family: inherit;
+    font-size: inherit;
+    color: inherit;
+    line-height: inherit;
+    resize: vertical;
+    padding: 2px 4px;
+    border-radius: 4px;
+    transition: border-color 0.2s, background 0.2s;
+  }
+
+  .edit-mode .edit-field textarea,
+  .edit-mode .edit-field input {
+    border-color: #ddd;
+    background: rgba(212,168,67,0.05);
+  }
+
+  .edit-mode .edit-field textarea:focus,
+  .edit-mode .edit-field input:focus {
+    outline: none;
+    border-color: var(--gold);
+    background: rgba(212,168,67,0.1);
+  }
+
+  .edit-mode .edit-field textarea { min-height: 3rem; }
+
+  .add-item-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 1rem;
+    border: 2px dashed #ddd;
+    border-radius: var(--radius);
+    background: transparent;
+    color: #999;
+    font-family: 'Noto Sans SC', sans-serif;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 1rem;
+  }
+
+  .edit-mode .add-item-btn {
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+
+  .edit-mode .add-item-btn:hover {
+    background: rgba(212,168,67,0.1);
+  }
+
+  .delete-btn {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: none;
+    background: #fce4ec;
+    color: #c62828;
+    font-size: 1rem;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+    z-index: 2;
+  }
+
+  .delete-btn:hover { background: #f8bbd0; }
+  .edit-mode .delete-btn { display: flex; }
+
+  /* ===== TIPS ===== */
+  .tips-section {
+    margin-top: 3rem;
+    padding: 2rem;
+    background: linear-gradient(135deg, var(--warm-light), #fff);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 2px 12px var(--shadow);
+  }
+
+  .tips-section h3 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .tips-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+
+  .tip-item {
+    display: flex;
+    gap: 0.8rem;
+    align-items: flex-start;
+  }
+
+  .tip-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+
+  .tip-icon.sun { background: #fff3e0; }
+  .tip-icon Metro { background: #e3f2fd; }
+  .tip-icon.ticket { background: #f3e5f5; }
+  .tip-icon.food { background: #fce4ec; }
+
+  .tip-text { font-size: 0.85rem; color: #555; }
+  .tip-text strong { color: var(--ink); }
+
+  /* ===== FOOD MAP ===== */
+  .food-map {
+    margin: 2rem 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+
+  .food-card {
+    background: #fff;
+    border-radius: var(--radius);
+    padding: 1.2rem;
+    box-shadow: 0 2px 8px var(--shadow);
+    text-align: center;
+    transition: transform 0.2s;
+  }
+
+  .food-card:hover { transform: translateY(-3px); }
+
+  .food-emoji { font-size: 2.5rem; margin-bottom: 0.5rem; }
+
+  .food-card h4 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 1rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .food-card p {
+    font-size: 0.8rem;
+    color: #888;
+  }
+
+  /* ===== FOOTER ===== */
+  .footer {
+    text-align: center;
+    padding: 3rem 1.5rem;
+    color: #aaa;
+    font-size: 0.85rem;
+    border-top: 1px solid #f0f0f0;
+    margin-top: 2rem;
+  }
+
+  .footer .poem {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 1rem;
+    color: #999;
+    margin-bottom: 1rem;
+  }
+
+  /* ===== SAVE TOAST ===== */
+  .toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--ink);
+    color: #fff;
+    padding: 0.8rem 1.5rem;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    z-index: 999;
+    transition: transform 0.3s ease;
+    pointer-events: none;
+  }
+
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ===== EXPORT BTN ===== */
+  .export-bar {
+    display: flex;
+    gap: 0.8rem;
+    justify-content: center;
+    margin: 2rem 0;
+    flex-wrap: wrap;
+  }
+
+  .export-btn {
+    padding: 0.6rem 1.5rem;
+    border-radius: 999px;
+    border: 2px solid var(--ink);
+    background: transparent;
+    color: var(--ink);
+    font-family: 'Noto Sans SC', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .export-btn:hover {
+    background: var(--ink);
+    color: #fff;
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 640px) {
+    .hero { min-height: 80vh; padding: 1.5rem; }
+    .hero-title { font-size: 2rem; }
+    .day-number { font-size: 3.5rem; }
+    .timeline { padding-left: 2rem; }
+    .info-grid { grid-template-columns: 1fr; }
+    .day-nav-inner { gap: 0.3rem; }
+    .nav-btn { padding: 0.4rem 0.8rem; font-size: 0.8rem; }
+    .main { padding: 1rem 1rem 3rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== HERO ===== -->
+<section class="hero" id="hero">
+  <div class="hero-content">
+    <p class="hero-subtitle">豫 章 故 郡 行</p>
+    <h1 class="hero-title">南昌<span class="accent">五日</span>慢游攻略</h1>
+    <p class="hero-poem">「落霞与孤鹜齐飞，秋水共长天一色」</p>
+    <div class="hero-meta">
+      <div class="hero-meta-item"><div class="icon">📅</div>2026.7.10 – 7.14</div>
+      <div class="hero-meta-item"><div class="icon">👥</div>5人同行</div>
+      <div class="hero-meta-item"><div class="icon">🚄</div>高铁约3.5h</div>
+      <div class="hero-meta-item"><div class="icon">💰</div>人均约¥1,830–2,260</div>
+    </div>
+  </div>
+  <div class="scroll-hint" onclick="document.getElementById('nav').scrollIntoView({behavior:'smooth'})">↓ 向下滑动探索</div>
+</section>
+
+<!-- ===== NAV ===== -->
+<nav class="day-nav" id="nav">
+  <div class="day-nav-inner">
+    <button class="nav-btn overview active" onclick="showSection('overview')">📋 总览</button>
+    <button class="nav-btn" onclick="showSection('day1')">Day1</button>
+    <button class="nav-btn" onclick="showSection('day2')">Day2</button>
+    <button class="nav-btn" onclick="showSection('day3')">Day3</button>
+    <button class="nav-btn" onclick="showSection('day4')">Day4</button>
+    <button class="nav-btn" onclick="showSection('day5')">Day5</button>
+    <button class="nav-btn" onclick="showSection('food')">🍜 美食</button>
+    <div class="nav-spacer"></div>
+    <button class="edit-toggle" id="editToggle" onclick="toggleEdit()">✏️ 编辑</button>
+  </div>
+</nav>
+
+<!-- ===== MAIN ===== -->
+<main class="main" id="mainContent">
+
+  <!-- OVERVIEW -->
+  <div class="section active" id="sec-overview">
+    <div class="overview-header">
+      <h2>📋 行程总览</h2>
+      <p>盛夏出行 · 注意防暑防晒</p>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-card">
+        <h3>🚄 交通</h3>
+        <ul>
+          <li>绍兴北→杭州东→南昌西（中转）</li>
+          <li>推荐 G7436+G223，10:38到站</li>
+          <li>二等座合计约 ¥3xx/人</li>
+          <li>南昌市内4条地铁线，建议买三日票¥32</li>
+        </ul>
+      </div>
+      <div class="info-card">
+        <h3>🏨 住宿</h3>
+        <ul>
+          <li>麗枫酒店（万寿宫站）— 推荐</li>
+          <li>地铁1号线万寿宫站100米</li>
+          <li>步行至滕王阁10min、万寿宫5min</li>
+          <li>双床房 ¥260–350/晚，2间4晚约¥2,100–2,800</li>
+        </ul>
+      </div>
+      <div class="info-card">
+        <h3>🎫 需预约</h3>
+        <ul>
+          <li>八一起义纪念馆 — 微信小程序提前7天</li>
+          <li>海昏侯遗址公园 — 线上实名预约</li>
+          <li>江西省博物馆 — 微信预约</li>
+          <li>滕王阁 — 旺季¥50/人，背诵序免票</li>
+        </ul>
+      </div>
+      <div class="info-card">
+        <h3>🌡️ 防暑提醒</h3>
+        <ul>
+          <li>7月南昌38°C+，四大火炉之一</li>
+          <li>备好防晒霜、遮阳伞、充足饮水</li>
+          <li>行程安排「早晚户外、午间室内」</li>
+          <li>湿地公园/海昏侯户外时间长，注意</li>
+        </ul>
+      </div>
+    </div>
+
+    <table class="budget-table">
+      <tr><th>项目</th><th>5人合计</th><th>人均</th></tr>
+      <tr><td>🚄 高铁往返</td><td>~¥3,300</td><td>~¥660</td></tr>
+      <tr><td>🏨 住宿（4晚×2间）</td><td>~¥2,100–2,800</td><td>~¥420–560</td></tr>
+      <tr><td>🎫 门票</td><td>~¥750–1,000</td><td>~¥150–200</td></tr>
+      <tr><td>🍜 餐饮（5天）</td><td>~¥2,500–3,500</td><td>~¥500–700</td></tr>
+      <tr><td>🚕 市内交通</td><td>~¥500–700</td><td>~¥100–140</td></tr>
+      <tr><td>💰 合计</td><td>~¥9,150–11,300</td><td>~¥1,830–2,260</td></tr>
+    </table>
+
+    <div class="export-bar">
+      <button class="export-btn" onclick="exportJSON()">📥 导出为 JSON</button>
+      <button class="export-btn" onclick="importJSON()">📥 导入 JSON</button>
+      <button class="export-btn" onclick="resetData()">🔄 重置为默认</button>
+    </div>
+  </div>
+
+  <!-- DAY 1 -->
+  <div class="section" id="sec-day1">
+    <div class="day-header">
+      <div class="day-number">01</div>
+      <div class="day-date">2026年7月10日 · 周五</div>
+      <h2 class="day-title">水杉与落霞 · 初见南昌</h2>
+      <p class="day-quote">「落霞与孤鹜齐飞，秋水共长天一色」</p>
+    </div>
+    <div class="timeline" id="timeline-day1">
+      <div class="timeline-item transport">
+        <button class="delete-btn" onclick="deleteItem(this)">×</button>
+        <div class="timeline-time edit-field"><input value="上午 · 07:49–10:38" data-field="time"></div>
+        <div class="timeline-name edit-field"><input value="🚄 绍兴北 → 杭州东 → 南昌西" data-field="name"></div>
+        <div class="timeline-desc edit-field"><textarea data-field="desc">G7436 绍兴北 07:49→杭州东 08:09，换 G223 杭州东 08:37→南昌西 10:38。中转方案到站最早，推荐。二等座合计约¥3xx/人。出站乘地铁2号线至八一广场站（约30min），或打车约¥35（25min）。</textarea></div>
+        <div class="timeline-tags">
+          <span class="tag price">💰 ¥3xx/人</span>
+          <span class="tip book">📱 提前12306购票</span>
+        </div>
+      </div>
+
+      <div class="timeline-item food">
+        <button class="delete-btn" onclick="deleteItem(this)">×</button>
+        <div class="timeline-time edit-field"><input value="午餐 · 11:30–12:30" data-field="time"></div>
+        <div class="timeline-name edit-field"><input value="🍜 建德观美食街" data-field="name"></div>
+        <div class="timeline-desc edit-field"><textarea data-field="desc">南昌老城最地道的早午餐街区。来一碗南昌拌粉配瓦罐煨汤——南昌人的日常仪式。推荐：高师傅拌粉（雪梨肉饼汤是招牌）、周真真南昌粉面。人均约¥15–25。</textarea></div>
+        <div class="timeline-tags">
+          <span class="tag price">💰 人均¥15–25</span>
+          <span class="tag tip">🌟 必吃：拌粉+瓦罐汤</span>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <button class="delete-btn" onclick="deleteItem(this)">×</button>
+        <div class="timeline-time edit-field"><input value="下午 14:00–17:00" data-field="time"></div>
+        <div class="timeline-name edit-field"><input value="🌿 鱼尾洲湿地公园" data-field="name"></div>
+        <div class="timeline-desc edit-field"><textarea data-field="desc">地铁4号线至鱼尾洲站4号口出，骑共享单车约5分钟即到。「会呼吸的」海绵城市公园，水杉林立、白鹭栖息，栈道穿行于湿地岛链之间。7月绿意最盛，适合慢走拍照。免费开放。预留2–3小时。⚠️ 注意防暑，备好饮水和遮阳伞。</textarea></div>
+        <div class="timeline-tags">
+          <span class="tag free">🆓 免费</span>
+          <span class="tag warn">☀️ 注意防暑</span>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <button class="delete-btn" onclick="deleteItem(this)">×</button>
+        <div class="timeline-time edit-field"><input value="傍晚 18:00–20:30" data-field="time"></div>
+        <div class="timeline-name edit-field"><input value="🏯 滕王阁（夜游）" data-field="name"></div>
+        <div class="timeline-desc edit-field"><textarea data-field="desc">地铁1号线万寿宫站步行约10分钟。旺季门票¥50/人（5人共¥250），背诵《滕王阁序》可免票！傍晚登阁，暑气渐消，赣江晚霞正好。阁内六层展览讲述滕王阁千年兴废。顶层俯瞰赣江两岸灯火渐起，正合「画栋朝飞南浦云，珠帘暮卷西山雨」之意。</textarea></div>
+        <div class="timeline-tags">
+          <span class="tag price">💰 ¥50/人</span>
+          <span class="tag tip">💡 背诵《滕王阁序》免票</span>
+        </div>
+      </div>
+
+      <div class="timeline-item food">
+        <button class="delete-btn" onclick="deleteItem(this)">×</button>
+        <div class="timeline-time edit-field"><input value="晚餐 · 20:30" data-field="time"></div>
+        <div class="timeline-name edit-field"><input value="🍽️ 万方圆拌粉瓦罐汤 / 万寿宫街区" data-field="name"></div>
+        <div class="timeline-desc edit-field"><textarea data-field="desc">滕王阁对面万方圆拌粉瓦罐汤，或步行至万寿宫街区觅食。推荐：南昌拌粉·瓦罐煨汤·白糖糕·油炸馓子。</textarea></div>
+        <div class="timeline-tags">
+          <span class="tag price">💰 人均¥20–40</span>
+        </div>
+      </div>
+    </div>
+    <button class="add-item-btn" onclick="addItem('day1')">+ 添加行程</button>
+  </div>
+
+  <!-- DAY 2 -->
+  <div class="section" id="sec-day2">
+    <div class="day-header">
+      <div class="day-number">02</div>
+      <div class="day-date">2026年7月11日 · 周六</div>
+      <h2 class="day-title">红色记忆 · 烟火人间</h2>
+      <p class="day-quote">「南昌城头一声枪响，宣告了人民军队的诞生」</p>
+    </div>
+    <div class="timeline" id="timeline-day2">
+      <div class="timeline-item">
+        <button class="delete-btn" onclick="deleteItem(this)">×</button>
+        <div class="timeline-time edit-field"><input value="上午 9:00–11:30" data-field="time"></div>
+        <div class="timeline-name edit-field"><input value="🏛️ 八一起义纪念馆" data-field="name"></div>
+        <div class="timeline-desc edit-field"><textarea data-field="desc">免费，需提前在微信小程序预约（可约7天内），周一闭馆。地铁1号线八一馆站B口出，步行3分钟。陈列大楼系统讲述1927年南昌起义始末，建筑本身即历史——起义指挥部旧址。60岁以上老人免预约刷身份证入馆。预留2小时认真看完。</textarea></div>
+        <div class="timeline-tags">
+          <span class="tag free">🆓 免费</span>
+          <span class="tag book">📱 微信小程序提前7天预约</span>
+          <span class="tag warn">🚫 周一闭馆</span>
+        </div>
+      </div>
+
+      <div class="timeline-item food">
+        <button class="delete-btn" onclick="deleteItem(this)">×</button>
+        <div class="timeline-time edit-field"><input value="午餐 · 11:30–12:30" data-field="time"></div>
+        <div class="timeline-name edit-field"><input value="🍽️ 八一广场周边" data-field="name"></div>
+        <div class="timeline-desc edit-field"><textarea data-field="desc">从纪念馆步行至八一广场，纪念塔是南昌城的精神坐标。广场周边中山路沿线小馆众多。推荐羊子巷、系马桩街一带的老店，藜蒿炒腊肉是必点赣菜。</textarea></div>
+        <div class="timeline-tags">
+          <span class="tag tip">🌟 必点：藜蒿炒腊肉</span>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <button class="delete-btn" onclick="deleteItem(this)">×</button>
+        <div class="timeline-time edit-field"><input value="下午 14:00–17:00" data-field="time"></div>
+        <div class="timeline-name edit-field"><input value="🏮 万寿宫历史文化街区" data-field="name"></div>
+        <div class="timeline-desc edit-field"><textarea data-field="desc">地铁1号线万寿宫站直达。南昌最热闹的古街区，铁柱万寿宫始建于晋代，供奉许真君（许逊）。街区保留了老南昌的巷陌格局，融入沉浸式唐风体验——古装巡游、实景演艺、文创小店。7月午后暑热，街区内有空调商铺和茶馆可以避暑歇脚。适合慢逛2–3小时。</textarea></div>
+        <div class="timeline-tags">
+          <span class="tag free">🆓 免费</span>
+          <span class="tag tip">❄️ 有空调可避暑</span>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <button class="delete-btn" onclick="deleteItem(this)">×</button>
+        <div class="timeline-time edit-field"><input value="夜晚 18:30–21:00" data-field="time"></div>
+        <div class="timeline-name edit-field"><input value="🗼 绳金塔 → 蛤蟆街夜市" data-field="name"></div>
+        <div class="timeline-desc edit-field"><textarea data-field="desc">地铁3号线绳金塔站直达。绳金塔始建于唐代，塔高50米，是南昌人心中的「风水宝塔」，夜间灯光点亮格外好看。塔下美食街热闹非凡。之后步行或打车至蛤蟆街夜市（约3km），南昌最市井的夜间烟火——烧烤、炒粉、卤味、冰粉应有尽有。人均约¥40–60。</textarea></div>
+        <div class="timeline-tags">
+          <span class="tag price">💰 人均¥40–60</span>
+          <span class="tag tip">🌟 推荐：烧烤·炒粉·冰粉</span>
+        </div>
+      </div>
+    </div>
+    <button class="add-item-btn" onclick="addItem('day2')">+ 添加行程</button>
+  </div>
+
+  <!-- DAY 3 -->
+  <div class="section" id="sec-day3">
+    <div class="day-header">
+      <div class="day-number">03</div>
+      <div class="day-date">2026年7月12日 · 周日</div>
+      <h2 class="day-title">海昏往事 · 汉代遗梦</h2>
+      <p class="day-quote">「两千年前的侯国，一座未被打开的时间胶囊」</p>
+    </div>
+    <div class="timeline" id="timeline-day3">
+      <div class="timeline-item transport">
+        <button class="delete-btn" onclick="deleteItem(this)">×</button>
+        <div class="timeline-time edit-field"><input value="上午 8:30 出发" data-field="time"></div>
+        <div class="timeline-name edit-field"><input value="🚕 打车前往海昏侯遗址公园" data-field="name"></div>
+        <div class="timeline-desc edit-field"><textarea data-field="desc">位于新建区大塘坪乡，距市区约40公里。5人打车前往（约¥80–100），或从南昌西站乘海昏侯专线公交。车程约50分钟。建议早出发避开午间暴晒。门票需线上预约。</textarea></div>
+        <div class="timeline-tags">
+          <span class="tag price">💰 打车¥80–100/单程</span>
+          <span class="tag book">📱 需线上预约</span>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <button class="delete-btn" onclick="deleteItem(this)">×</button>
+        <div class="timeline-time edit-field"><input value="9:30–15:00" data-field="time"></div>
+        <div class="timeline-name edit-field"><input value="⚱️ 海昏侯遗址公园（全天）" data-field="name"></div>
+        <div class="timeline-desc edit-field"><textarea data-field="desc">中国迄今发现保存最完好的西汉列侯墓园，刘贺墓出土文物万余件。重点看：遗址博物馆（马蹄金、麟趾金、五铢钱山、编钟等国宝级文物）、刘贺墓园区（主墓遗址）、紫金城遗址区（汉代侯国城址）。园区很大，认真看需4–5小时。园内有简餐区可解决午餐。⚠️ 7月户外部分酷热，务必备好防晒、饮水、遮阳伞。</textarea></div>
+        <div class="timeline-tags">
+          <span class="tag price">💰 ¥7x/人（含观光车）</span>
+          <span class="tag warn">☀️ 户外酷热，注意防暑</span>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <button class="delete-btn" onclick="deleteItem(this)">×</button>
+        <div class="timeline-time edit-field"><input value="下午 15:30–16:30" data-field="time"></div>
+        <div class="timeline-name edit-field"><input value="🙏 佑民寺（可选）" data-field="name"></div>
+        <div class="timeline-desc edit-field"><textarea data-field="desc">打车返回市区。如果体力尚可，顺路去佑民寺——南昌香火最旺的千年古寺，始建于南朝梁代，闹市中的清净地。免费参观。地铁1号线八一馆站附近。</textarea></div>
+        <div class="timeline-tags">
+          <span class="tag free">🆓 免费</span>
+        </div>
+      </div>
+
+      <div class="timeline-item food">
+        <button class="delete-btn" onclick="deleteItem(this)">×</button>
+        <div class="timeline-time edit-field"><input value="晚餐 · 18:00" data-field="time"></div>
+        <div class="timeline-name edit-field"><input value="🍽️ 船山路/系马桩街赣菜馆" data-field="name"></div>
+        <div class="timeline-desc edit-field"><textarea data-field="desc">回市区后找一家赣菜馆，5人点菜聚餐。推荐菜品：粉蒸肉、三杯鸡、鄱阳湖银鱼炒蛋、南昌啤酒鸭。人均约¥60–80。</textarea></div>
+        <div class="timeline-tags">
+          <span class="tag price">💰 人均¥60–80</span>
+          <span class="tag tip">🌟 推荐：粉蒸肉·三杯鸡·啤酒鸭</span>
+        </div>
+      </div>
+    </div>
+    <button class="add-item-btn" onclick="addItem('day3')">+ 添加行程</button>
+  </div>
+
+  <!-- DAY 4 -->
+  <div class="section" id="sec-day4">
+    <div class="day-header">
+      <div class="day-number">04</div>
+      <div class="day-date">2026年7月13日 · 周一</div>
+      <h2 class="day-title">墨痕山水 · 诗意一日</h2>
+      <p class="day-quote">「墨点无多泪点多，山河仍是旧山河 —— 八大山人」</p>
+    </div>
+    <div class="timeline" id="timeline-day4">
+      <div class="timeline-item">
+        <button class="delete-btn" onclick="deleteItem(this)">×</button>
+        <div class="timeline-time edit-field"><input value="上午 9:00–11:30" data-field="time"></div>
+        <div class="timeline-name edit-field"><input value="🎨 八大山人纪念馆" data-field="name"></div>
+        <div class="timeline-desc edit-field"><textarea data-field="desc">位于青云谱区梅湖畔，从八一广场打车约20分钟（¥25左右）。朱耷（八大山人）曾在此出家修行。馆藏其书画真迹——那些翻白眼的鱼和鸟，是明末遗民最孤绝的表达。园林清幽，荷塘在七月正盛。免费开放，周一闭馆。⚠️ 注意：7月13日是周一，纪念馆可能闭馆，请提前确认！预留2小时。</textarea></div>
+        <div class="timeline-tags">
+          <span class="tag free">🆓 免费</span>
+          <span class="tag warn">⚠️ 周一可能闭馆</span>
+        </div>
+      </div>
+
+      <div class="timeline-item food">
+        <button class="delete-btn" onclick="deleteItem(this)">×</button>
+        <div class="timeline-time edit-field"><input value="午餐 · 12:00" data-field="time"></div>
+        <div class="timeline-name edit-field"><input value="🍽️ 梅湖周边午餐" data-field="name"></div>
+        <div class="timeline-desc edit-field"><textarea data-field="desc">梅湖景区周边有一些本地小馆，也可返回老城区午餐。</textarea></div>
+      </div>
+
+      <div class="timeline-item">
+        <button class="delete-btn" onclick="deleteItem(this)">×</button>
+        <div class="timeline-time edit-field"><input value="下午 13:30–16:00" data-field="time"></div>
+        <div class="timeline-name edit-field"><input value="🏛️ 江西省博物馆新馆" data-field="name"></div>
+        <div class="timeline-desc edit-field"><textarea data-field="desc">新馆位于赣江边（红谷滩区），从梅湖打车约20分钟。建筑本身即地标。馆藏涵盖商周青铜器、景德镇瓷器、革命文物。海昏侯出土文物的部分精品在此常设展出——昨日在遗址看了现场，今日在博物馆看精品，形成完整闭环。免费，需微信预约。预留2–2.5小时。</textarea></div>
+        <div class="timeline-tags">
+          <span class="tag free">🆓 免费</span>
+          <span class="tag book">📱 需微信预约</span>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <button class="delete-btn" onclick="deleteItem(this)">×</button>
+        <div class="timeline-time edit-field"><input value="傍晚 17:00–18:30" data-field="time"></div>
+        <div class="timeline-name edit-field"><input value="🎡 南昌之星摩天轮" data-field="name"></div>
+        <div class="timeline-desc edit-field"><textarea data-field="desc">从省博物馆沿赣江步行约1.5公里即到（或骑共享单车5分钟）。高160米，是世界第三高摩天轮。每舱可容6–8人，5人正好一舱。转一圈约30分钟。选在日落时分登轮，从高空看赣江从金色变为霓虹。门票约¥50/人（5人共¥250），具体以现场为准。</textarea></div>
+        <div class="timeline-tags">
+          <span class="tag price">💰 ¥4x–50/人</span>
+          <span class="tag tip">🌅 日落时分最佳</span>
+        </div>
+      </div>
+
+      <div class="timeline-item food">
+        <button class="delete-btn" onclick="deleteItem(this)">×</button>
+        <div class="timeline-time edit-field"><input value="晚餐 · 19:00" data-field="time"></div>
+        <div class="timeline-name edit-field"><input value="🍽️ 红谷滩商圈 / 珠宝街赣菜" data-field="name"></div>
+        <div class="timeline-desc edit-field"><textarea data-field="desc">摩天轮附近红谷滩商圈餐饮众多，万达广场或红谷滩步行街可选。或返回老城区珠宝街一带吃赣菜。推荐：鄱阳湖胖鱼头·糊羹·南昌炒米粉·啤酒鸭。</textarea></div>
+        <div class="timeline-tags">
+          <span class="tag price">💰 人均¥50–80</span>
+        </div>
+      </div>
+    </div>
+    <button class="add-item-btn" onclick="addItem('day4')">+ 添加行程</button>
+  </div>
+
+  <!-- DAY 5 -->
+  <div class="section" id="sec-day5">
+    <div class="day-header">
+      <div class="day-number">05</div>
+      <div class="day-date">2026年7月14日 · 周二</div>
+      <h2 class="day-title">市井余韵 · 赣江告别</h2>
+      <p class="day-quote">「最好的告别，是再吃一碗粉」</p>
+    </div>
+    <div class="timeline" id="timeline-day5">
+      <div class="timeline-item food">
+        <button class="delete-btn" onclick="deleteItem(this)">×</button>
+        <div class="timeline-time edit-field"><input value="清晨 7:30–8:30" data-field="time"></div>
+        <div class="timeline-name edit-field"><input value="🍜 珠宝街/羊子巷早餐" data-field="name"></div>
+        <div class="timeline-desc edit-field"><textarea data-field="desc">最后一个早晨，去珠宝街或羊子巷找一家老店，再嗦一碗拌粉，配一罐煨了整夜的瓦罐汤。这是南昌给你最朴素也最诚恳的礼物。人均约¥15。</textarea></div>
+        <div class="timeline-tags">
+          <span class="tag price">💰 人均¥15</span>
+          <span class="tag tip">🌟 最后一碗粉</span>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <button class="delete-btn" onclick="deleteItem(this)">×</button>
+        <div class="timeline-time edit-field"><input value="上午 9:00–11:00" data-field="time"></div>
+        <div class="timeline-name edit-field"><input value="🌊 秋水广场 · 赣江漫步" data-field="name"></div>
+        <div class="timeline-desc edit-field"><textarea data-field="desc">地铁1号线至秋水广场站。秋水广场面对滕王阁，是赣江两岸景观带的核心节点。上午人少，适合沿江散步，回望第一天夜登的滕王阁，江风习习，为旅程画上句号。广场旁有绿地303观光厅（门票约¥50）可登高俯瞰全城，如有兴趣可加入。</textarea></div>
+        <div class="timeline-tags">
+          <span class="tag free">🆓 免费</span>
+          <span class="tag price">💰 绿地303约¥50/人（可选）</span>
+        </div>
+      </div>
+
+      <div class="timeline-item food">
+        <button class="delete-btn" onclick="deleteItem(this)">×</button>
+        <div class="timeline-time edit-field"><input value="午间 · 11:30" data-field="time"></div>
+        <div class="timeline-name edit-field"><input value="🛍️ 午餐 + 采购伴手礼" data-field="name"></div>
+        <div class="timeline-desc edit-field"><textarea data-field="desc">返回万寿宫或中山路一带午餐。伴手礼推荐：军山湖大闸蟹酱、石头街麻花、南昌白糖糕、江西茶饼。万寿宫街区和绳金塔附近有特产店。</textarea></div>
+        <div class="timeline-tags">
+          <span class="tag tip">🎁 伴手礼：蟹酱·麻花·白糖糕·茶饼</span>
+        </div>
+      </div>
+
+      <div class="timeline-item transport">
+        <button class="delete-btn" onclick="deleteItem(this)">×</button>
+        <div class="timeline-time edit-field"><input value="下午 · 14:00–15:00" data-field="time"></div>
+        <div class="timeline-name edit-field"><input value="🚄 南昌西 → 杭州东 → 绍兴东" data-field="name"></div>
+        <div class="timeline-desc edit-field"><textarea data-field="desc">建议选14:00–15:00的车次，预留充足时间。地铁2号线直达南昌西站（从八一广场约30分钟）。5人行李多也可打车（约¥35）。回程经杭州东换乘至绍兴东，约18:00–19:00到家。</textarea></div>
+        <div class="timeline-tags">
+          <span class="tag price">💰 ¥3xx/人</span>
+          <span class="tip book">📱 提前购票</span>
+        </div>
+      </div>
+    </div>
+    <button class="add-item-btn" onclick="addItem('day5')">+ 添加行程</button>
+  </div>
+
+  <!-- FOOD MAP -->
+  <div class="section" id="sec-food">
+    <div class="overview-header">
+      <h2>🍜 南昌美食地图</h2>
+      <p>拌粉+瓦罐汤，南昌人的灵魂早餐</p>
+    </div>
+
+    <div class="food-map">
+      <div class="food-card">
+        <div class="food-emoji">🍜</div>
+        <h4>南昌拌粉</h4>
+        <p>米粉爽滑筋道，拌酱油/辣椒油/花生米/萝卜干，香辣开胃</p>
+      </div>
+      <div class="food-card">
+        <div class="food-emoji">🫕</div>
+        <h4>瓦罐煨汤</h4>
+        <p>大瓦缸慢煨数小时，推荐肉饼汤、墨鱼汤、排骨汤</p>
+      </div>
+      <div class="food-card">
+        <div class="food-emoji">🥩</div>
+        <h4>藜蒿炒腊肉</h4>
+        <p>江西特色，清香爽口，赣菜必点</p>
+      </div>
+      <div class="food-card">
+        <div class="food-emoji">🍗</div>
+        <h4>三杯鸡</h4>
+        <p>赣菜经典，一杯酱油一杯酒一杯油</p>
+      </div>
+      <div class="food-card">
+        <div class="food-emoji">🐟</div>
+        <h4>鄱阳湖银鱼</h4>
+        <p>鲜嫩可口，炒蛋或做汤皆宜</p>
+      </div>
+      <div class="food-card">
+        <div class="food-emoji">🍺</div>
+        <h4>南昌啤酒鸭</h4>
+        <p>赣菜硬菜，鸭肉酥烂入味</p>
+      </div>
+      <div class="food-card">
+        <div class="food-emoji">🧁</div>
+        <h4>白糖糕</h4>
+        <p>传统甜点，软糯香甜</p>
+      </div>
+      <div class="food-card">
+        <div class="food-emoji">🍢</div>
+        <h4>油炸馓子</h4>
+        <p>金黄酥脆，配拌粉绝配</p>
+      </div>
+    </div>
+
+    <div class="tips-section" style="margin-top:2rem;">
+      <h3>📍 美食街区</h3>
+      <div class="info-grid">
+        <div class="info-card">
+          <h3>🏪 大士院</h3>
+          <ul>
+            <li>南昌人气最高美食街</li>
+            <li>白糖糕+拌粉+瓦罐汤一站吃遍</li>
+            <li>近地铁八一馆站</li>
+          </ul>
+        </div>
+        <div class="info-card">
+          <h3>🏮 万寿宫街区</h3>
+          <ul>
+            <li>古色古香，美食+文创+打卡</li>
+            <li>地铁六眼井站步行0.2km</li>
+            <li>拍照美食两不误</li>
+          </ul>
+        </div>
+        <div class="info-card">
+          <h3>🌙 蛤蟆街夜市</h3>
+          <ul>
+            <li>南昌最市井夜间烟火</li>
+            <li>烧烤·炒粉·卤味·冰粉</li>
+            <li>人均¥40–60</li>
+          </ul>
+        </div>
+        <div class="info-card">
+          <h3>🍡 建德观美食街</h3>
+          <ul>
+            <li>南昌老牌美食聚集地</li>
+            <li>高师傅拌粉·周真真粉面</li>
+            <li>人均¥15–25</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <p class="poem">豫章故郡，洪都新府。<br>愿这五日，山水与人间皆不辜负。</p>
+  <p>南昌五日慢游攻略 · 数据来源：飞猪FlyAI · 生成于 2026年</p>
+</footer>
+
+<!-- ===== TOAST ===== -->
+<div class="toast" id="toast">✅ 已保存</div>
+
+<!-- ===== HIDDEN FILE INPUT ===== -->
+<input type="file" id="fileInput" accept=".json" style="display:none" onchange="handleImport(event)">
+
+<script>
+// ===== DATA =====
+const DEFAULT_DATA = {
+  day1: [
+    { time: '上午 · 07:49–10:38', name: '🚄 绍兴北 → 杭州东 → 南昌西', desc: 'G7436 绍兴北 07:49→杭州东 08:09，换 G223 杭州东 08:37→南昌西 10:38。中转方案到站最早，推荐。二等座合计约¥3xx/人。出站乘地铁2号线至八一广场站（约30min），或打车约¥35（25min）。', type: 'transport', tags: ['price:¥3xx/人', 'book:📱 提前12306购票'] },
+    { time: '午餐 · 11:30–12:30', name: '🍜 建德观美食街', desc: '南昌老城最地道的早午餐街区。来一碗南昌拌粉配瓦罐煨汤——南昌人的日常仪式。推荐：高师傅拌粉（雪梨肉饼汤是招牌）、周真真南昌粉面。人均约¥15–25。', type: 'food', tags: ['price:人均¥15–25', 'tip:🌟 必吃：拌粉+瓦罐汤'] },
+    { time: '下午 14:00–17:00', name: '🌿 鱼尾洲湿地公园', desc: '地铁4号线至鱼尾洲站4号口出，骑共享单车约5分钟即到。「会呼吸的」海绵城市公园，水杉林立、白鹭栖息，栈道穿行于湿地岛链之间。7月绿意最盛，适合慢走拍照。免费开放。预留2–3小时。⚠️ 注意防暑，备好饮水和遮阳伞。', type: 'normal', tags: ['free:🆓 免费', 'warn:☀️ 注意防暑'] },
+    { time: '傍晚 18:00–20:30', name: '🏯 滕王阁（夜游）', desc: '地铁1号线万寿宫站步行约10分钟。旺季门票¥50/人（5人共¥250），背诵《滕王阁序》可免票！傍晚登阁，暑气渐消，赣江晚霞正好。阁内六层展览讲述滕王阁千年兴废。顶层俯瞰赣江两岸灯火渐起。', type: 'normal', tags: ['price:💰 ¥50/人', 'tip:💡 背诵《滕王阁序》免票'] },
+    { time: '晚餐 · 20:30', name: '🍽️ 万方圆拌粉瓦罐汤 / 万寿宫街区', desc: '滕王阁对面万方圆拌粉瓦罐汤，或步行至万寿宫街区觅食。推荐：南昌拌粉·瓦罐煨汤·白糖糕·油炸馓子。', type: 'food', tags: ['price:人均¥20–40'] }
+  ],
+  day2: [
+    { time: '上午 9:00–11:30', name: '🏛️ 八一起义纪念馆', desc: '免费，需提前在微信小程序预约（可约7天内），周一闭馆。地铁1号线八一馆站B口出，步行3分钟。陈列大楼系统讲述1927年南昌起义始末。60岁以上老人免预约刷身份证入馆。预留2小时。', type: 'normal', tags: ['free:🆓 免费', 'book:📱 微信小程序提前7天预约', 'warn:🚫 周一闭馆'] },
+    { time: '午餐 · 11:30–12:30', name: '🍽️ 八一广场周边', desc: '从纪念馆步行至八一广场，纪念塔是南昌城的精神坐标。推荐羊子巷、系马桩街一带的老店，藜蒿炒腊肉是必点赣菜。', type: 'food', tags: ['tip:🌟 必点：藜蒿炒腊肉'] },
+    { time: '下午 14:00–17:00', name: '🏮 万寿宫历史文化街区', desc: '地铁1号线万寿宫站直达。南昌最热闹的古街区，铁柱万寿宫始建于晋代。街区保留老南昌巷陌格局，融入沉浸式唐风体验——古装巡游、实景演艺、文创小店。7月午后有空调商铺避暑。适合慢逛2–3小时。', type: 'normal', tags: ['free:🆓 免费', 'tip:❄️ 有空调可避暑'] },
+    { time: '夜晚 18:30–21:00', name: '🗼 绳金塔 → 蛤蟆街夜市', desc: '地铁3号线绳金塔站直达。绳金塔始建于唐代，塔高50米，夜间灯光好看。塔下美食街热闹。之后步行或打车至蛤蟆街夜市（约3km），烧烤、炒粉、卤味、冰粉。人均约¥40–60。', type: 'normal', tags: ['price:人均¥40–60', 'tip:🌟 推荐：烧烤·炒粉·冰粉'] }
+  ],
+  day3: [
+    { time: '上午 8:30 出发', name: '🚕 打车前往海昏侯遗址公园', desc: '位于新建区大塘坪乡，距市区约40公里。5人打车（约¥80–100），或从南昌西站乘专线公交。车程约50分钟。建议早出发避开午间暴晒。门票需线上预约。', type: 'transport', tags: ['price:💰 打车¥80–100/单程', 'book:📱 需线上预约'] },
+    { time: '9:30–15:00', name: '⚱️ 海昏侯遗址公园（全天）', desc: '中国迄今发现保存最完好的西汉列侯墓园，刘贺墓出土文物万余件。重点看：遗址博物馆（马蹄金、麟趾金、五铢钱山、编钟）、刘贺墓园区、紫金城遗址区。认真看需4–5小时。园内有简餐区。⚠️ 7月户外酷热，务必防晒。', type: 'normal', tags: ['price:💰 ¥7x/人（含观光车）', 'warn:☀️ 户外酷热，注意防暑'] },
+    { time: '下午 15:30–16:30', name: '🙏 佑民寺（可选）', desc: '打车返回市区。如果体力尚可，顺路去佑民寺——南昌香火最旺的千年古寺，始建于南朝梁代，闹市中的清净地。免费参观。', type: 'normal', tags: ['free:🆓 免费'] },
+    { time: '晚餐 · 18:00', name: '🍽️ 船山路/系马桩街赣菜馆', desc: '回市区后找一家赣菜馆，5人点菜聚餐。推荐：粉蒸肉、三杯鸡、鄱阳湖银鱼炒蛋、南昌啤酒鸭。人均约¥60–80。', type: 'food', tags: ['price:人均¥60–80', 'tip:🌟 推荐：粉蒸肉·三杯鸡·啤酒鸭'] }
+  ],
+  day4: [
+    { time: '上午 9:00–11:30', name: '🎨 八大山人纪念馆', desc: '位于青云谱区梅湖畔，打车约20分钟（¥25）。朱耷曾在此出家修行。馆藏书画真迹——翻白眼的鱼和鸟，明末遗民最孤绝的表达。园林清幽，荷塘七月正盛。免费开放，周一闭馆。⚠️ 7月13日是周一，可能闭馆！', type: 'normal', tags: ['free:🆓 免费', 'warn:⚠️ 周一可能闭馆'] },
+    { time: '午餐 · 12:00', name: '🍽️ 梅湖周边午餐', desc: '梅湖景区周边有一些本地小馆，也可返回老城区午餐。', type: 'food', tags: [] },
+    { time: '下午 13:30–16:00', name: '🏛️ 江西省博物馆新馆', desc: '新馆位于赣江边（红谷滩区），从梅湖打车约20分钟。建筑本身即地标。馆藏涵盖商周青铜器、景德镇瓷器、革命文物。海昏侯出土文物精品在此常设展出——与昨日遗址形成完整闭环。免费，需微信预约。', type: 'normal', tags: ['free:🆓 免费', 'book:📱 需微信预约'] },
+    { time: '傍晚 17:00–18:30', name: '🎡 南昌之星摩天轮', desc: '从省博物馆沿赣江步行约1.5公里（或骑车5分钟）。高160米，世界第三高摩天轮。每舱可容6–8人，5人正好一舱。转一圈约30分钟。选在日落时分登轮，从高空看赣江从金色变为霓虹。门票约¥50/人。', type: 'normal', tags: ['price:💰 ¥4x–50/人', 'tip:🌅 日落时分最佳'] },
+    { time: '晚餐 · 19:00', name: '🍽️ 红谷滩商圈 / 珠宝街赣菜', desc: '摩天轮附近红谷滩商圈餐饮众多。或返回老城区珠宝街。推荐：鄱阳湖胖鱼头·糊羹·南昌炒米粉·啤酒鸭。', type: 'food', tags: ['price:人均¥50–80'] }
+  ],
+  day5: [
+    { time: '清晨 7:30–8:30', name: '🍜 珠宝街/羊子巷早餐', desc: '最后一个早晨，去珠宝街或羊子巷找一家老店，再嗦一碗拌粉，配一罐瓦罐汤。这是南昌给你最朴素也最诚恳的礼物。人均约¥15。', type: 'food', tags: ['price:人均¥15', 'tip:🌟 最后一碗粉'] },
+    { time: '上午 9:00–11:00', name: '🌊 秋水广场 · 赣江漫步', desc: '地铁1号线至秋水广场站。面对滕王阁，赣江两岸景观带核心节点。上午人少，适合沿江散步，回望第一天夜登的滕王阁。广场旁有绿地303观光厅（约¥50）可选。', type: 'normal', tags: ['free:🆓 免费', 'price:💰 绿地303约¥50/人（可选）'] },
+    { time: '午间 · 11:30', name: '🛍️ 午餐 + 采购伴手礼', desc: '返回万寿宫或中山路一带午餐。伴手礼推荐：军山湖大闸蟹酱、石头街麻花、南昌白糖糕、江西茶饼。', type: 'food', tags: ['tip:🎁 伴手礼：蟹酱·麻花·白糖糕·茶饼'] },
+    { time: '下午 · 14:00–15:00', name: '🚄 南昌西 → 杭州东 → 绍兴东', desc: '建议选14:00–15:00车次。地铁2号线直达南昌西站（约30分钟）。打车约¥35。回程经杭州东换乘至绍兴东，约18:00–19:00到家。', type: 'transport', tags: ['price:💰 ¥3xx/人', 'book:📱 提前购票'] }
+  ]
+};
+
+// ===== STATE =====
+let editMode = false;
+let currentData = null;
+
+function loadData() {
+  const saved = localStorage.getItem('nanchang-travel-data');
+  if (saved) {
+    try { currentData = JSON.parse(saved); } catch(e) { currentData = JSON.parse(JSON.stringify(DEFAULT_DATA)); }
+  } else {
+    currentData = JSON.parse(JSON.stringify(DEFAULT_DATA));
+  }
+}
+
+function saveData() {
+  localStorage.setItem('nanchang-travel-data', JSON.stringify(currentData));
+  showToast('✅ 已保存到本地');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// ===== NAV =====
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  window.scrollTo({ top: document.getElementById('nav').offsetTop, behavior: 'smooth' });
+}
+
+// ===== EDIT =====
+function toggleEdit() {
+  editMode = !editMode;
+  document.getElementById('mainContent').classList.toggle('edit-mode', editMode);
+  document.getElementById('editToggle').classList.toggle('active', editMode);
+  document.getElementById('editToggle').textContent = editMode ? '💾 完成编辑' : '✏️ 编辑';
+  
+  if (!editMode) {
+    // Save on exit edit mode
+    syncDataFromDOM();
+    saveData();
+  }
+}
+
+function syncDataFromDOM() {
+  for (let day = 1; day <= 5; day++) {
+    const key = 'day' + day;
+    const timeline = document.getElementById('timeline-' + key);
+    if (!timeline) continue;
+    const items = timeline.querySelectorAll('.timeline-item');
+    currentData[key] = [];
+    items.forEach(item => {
+      const time = item.querySelector('[data-field="time"]')?.value || '';
+      const name = item.querySelector('[data-field="name"]')?.value || '';
+      const desc = item.querySelector('[data-field="desc"]')?.value || '';
+      let type = 'normal';
+      if (item.classList.contains('food')) type = 'food';
+      else if (item.classList.contains('transport')) type = 'transport';
+      else if (item.classList.contains('stay')) type = 'stay';
+      currentData[key].push({ time, name, desc, type, tags: [] });
+    });
+  }
+}
+
+function deleteItem(btn) {
+  if (!editMode) return;
+  const item = btn.closest('.timeline-item');
+  item.style.transition = 'all 0.3s';
+  item.style.opacity = '0';
+  item.style.transform = 'translateX(-20px)';
+  setTimeout(() => item.remove(), 300);
+}
+
+function addItem(dayKey) {
+  if (!editMode) return;
+  const timeline = document.getElementById('timeline-' + dayKey);
+  const div = document.createElement('div');
+  div.className = 'timeline-item';
+  div.innerHTML = `
+    <button class="delete-btn" onclick="deleteItem(this)">×</button>
+    <div class="timeline-time edit-field"><input value="新行程" data-field="time"></div>
+    <div class="timeline-name edit-field"><input value="地点/活动名称" data-field="name"></div>
+    <div class="timeline-desc edit-field"><textarea data-field="desc">详细描述...</textarea></div>
+    <div class="timeline-tags"></div>
+  `;
+  timeline.appendChild(div);
+  div.querySelector('[data-field="time"]').focus();
+}
+
+// ===== EXPORT/IMPORT =====
+function exportData() {
+  syncDataFromDOM();
+  const blob = new Blob([JSON.stringify(currentData, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'nanchang-travel-guide.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('📥 已导出 JSON');
+}
+
+function importJSON() {
+  document.getElementById('fileInput').click();
+}
+
+function handleImport(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      currentData = JSON.parse(e.target.result);
+      localStorage.setItem('nanchang-travel-data', JSON.stringify(currentData));
+      location.reload();
+    } catch(err) {
+      showToast('❌ JSON 格式错误');
+    }
+  };
+  reader.readAsText(file);
+}
+
+function resetData() {
+  if (confirm('确定要重置为默认行程吗？所有修改将丢失。')) {
+    localStorage.removeItem('nanchang-travel-data');
+    location.reload();
+  }
+}
+
+// ===== NAV SCROLL =====
+window.addEventListener('scroll', () => {
+  const nav = document.getElementById('nav');
+  nav.classList.toggle('scrolled', window.scrollY > 100);
+});
+
+// ===== INIT =====
+loadData();
+</script>
+</body>
+</html>
