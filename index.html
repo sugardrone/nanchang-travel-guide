@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>南昌五日慢游攻略 · 豫章故郡行</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
   
@@ -699,6 +701,204 @@
     color: #fff;
   }
 
+  /* ===== MAP ===== */
+  #mapSection { display: none; }
+  #mapSection.active { display: block; animation: fadeIn 0.4s ease; }
+
+  .map-container {
+    width: 100%;
+    height: 70vh;
+    min-height: 500px;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: 0 4px 24px var(--shadow-md);
+    margin: 2rem 0;
+    position: relative;
+  }
+
+  #travelMap {
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+  }
+
+  .map-legend {
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(8px);
+    border-radius: var(--radius);
+    padding: 1rem;
+    z-index: 1000;
+    box-shadow: 0 2px 12px var(--shadow);
+    font-size: 0.8rem;
+    max-width: 200px;
+  }
+
+  .map-legend h4 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    color: var(--ink);
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.2rem 0;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+
+  .legend-item:hover { opacity: 0.7; }
+
+  .legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    border: 2px solid #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+
+  .legend-line {
+    width: 20px;
+    height: 3px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .map-controls {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin: 1rem 0;
+    justify-content: center;
+  }
+
+  .map-ctrl-btn {
+    padding: 0.5rem 1rem;
+    border: 2px solid #ddd;
+    border-radius: 999px;
+    background: #fff;
+    font-family: 'Noto Sans SC', sans-serif;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .map-ctrl-btn:hover { border-color: var(--gold); color: var(--gold); }
+  .map-ctrl-btn.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+  .custom-marker {
+    background: none;
+    border: none;
+  }
+
+  .marker-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    border: 2px solid #fff;
+  }
+
+  .marker-icon span {
+    transform: rotate(45deg);
+    font-size: 14px;
+  }
+
+  .leaflet-popup-content-wrapper {
+    border-radius: var(--radius) !important;
+    box-shadow: 0 4px 20px var(--shadow-md) !important;
+  }
+
+  .leaflet-popup-content {
+    margin: 1rem !important;
+    font-family: 'Noto Sans SC', sans-serif !important;
+    line-height: 1.6 !important;
+  }
+
+  .popup-title {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+    color: var(--ink);
+  }
+
+  .popup-time {
+    font-size: 0.8rem;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+  }
+
+  .popup-desc {
+    font-size: 0.85rem;
+    color: #555;
+    max-height: 120px;
+    overflow-y: auto;
+  }
+
+  .popup-nav {
+    display: inline-block;
+    margin-top: 0.5rem;
+    padding: 0.3rem 0.8rem;
+    background: var(--sky);
+    color: #fff;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    text-decoration: none;
+    transition: background 0.2s;
+  }
+
+  .popup-nav:hover { background: #2471a3; }
+
+  .day-route-info {
+    background: #fff;
+    border-radius: var(--radius);
+    padding: 1.2rem;
+    margin: 1rem 0;
+    box-shadow: 0 2px 8px var(--shadow);
+  }
+
+  .day-route-info h3 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .route-stops {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    align-items: center;
+  }
+
+  .route-stop {
+    padding: 0.25rem 0.6rem;
+    background: var(--warm-light);
+    border-radius: 999px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .route-stop:hover { background: var(--gold-light); }
+
+  .route-arrow {
+    color: #ccc;
+    font-size: 0.7rem;
+  }
+
   /* ===== RESPONSIVE ===== */
   @media (max-width: 640px) {
     .hero { min-height: 80vh; padding: 1.5rem; }
@@ -740,6 +940,7 @@
     <button class="nav-btn" onclick="showSection('day4')">Day4</button>
     <button class="nav-btn" onclick="showSection('day5')">Day5</button>
     <button class="nav-btn" onclick="showSection('food')">🍜 美食</button>
+    <button class="nav-btn" onclick="showSection('map')">🗺️ 地图</button>
     <div class="nav-spacer"></div>
     <button class="edit-toggle" id="editToggle" onclick="toggleEdit()">✏️ 编辑</button>
   </div>
@@ -915,6 +1116,30 @@
           </ul>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- MAP -->
+  <div class="section" id="sec-map">
+    <div class="overview-header">
+      <h2>🗺️ 行程地图</h2>
+      <p>点击标记查看详情 · 按天查看路线</p>
+    </div>
+
+    <div class="map-controls" id="mapControls">
+      <button class="map-ctrl-btn active" onclick="showDayOnMap('all')">全部</button>
+      <button class="map-ctrl-btn" onclick="showDayOnMap(1)">Day 1</button>
+      <button class="map-ctrl-btn" onclick="showDayOnMap(2)">Day 2</button>
+      <button class="map-ctrl-btn" onclick="showDayOnMap(3)">Day 3</button>
+      <button class="map-ctrl-btn" onclick="showDayOnMap(4)">Day 4</button>
+      <button class="map-ctrl-btn" onclick="showDayOnMap(5)">Day 5</button>
+    </div>
+
+    <div class="day-route-info" id="routeInfo"></div>
+
+    <div class="map-container">
+      <div id="travelMap"></div>
+      <div class="map-legend" id="mapLegend"></div>
     </div>
   </div>
 
@@ -1255,6 +1480,12 @@ function showSection(id) {
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   event.target.classList.add('active');
   window.scrollTo({ top: document.getElementById('nav').offsetTop, behavior: 'smooth' });
+  if (id === 'map') {
+    setTimeout(() => {
+      initMap();
+      updateRouteInfo(currentFilter);
+    }, 100);
+  }
 }
 
 // ===== EDIT =====
@@ -1358,6 +1589,190 @@ function resetData() {
     localStorage.removeItem('nanchang-travel-data');
     location.reload();
   }
+}
+
+// ===== MAP =====
+const MAP_COLORS = ['#e74c3c','#2980b9','#27ae60','#f39c12','#8e44ad'];
+const MAP_DAY_NAMES = ['Day 1 · 水杉与落霞','Day 2 · 红色记忆','Day 3 · 海昏往事','Day 4 · 墨痕山水','Day 5 · 市井余韵'];
+
+// Location database with coordinates
+const LOCATIONS = {
+  // Day 1
+  '绍兴北站': { lat: 30.0519, lng: 120.5917, day: 1, icon: '🚄', desc: '出发站' },
+  '杭州东站': { lat: 30.2912, lng: 120.2132, day: 1, icon: '🚄', desc: '换乘站' },
+  '南昌西站': { lat: 28.6820, lng: 115.8175, day: 1, icon: '🚄', desc: '到达站' },
+  '建德观美食街': { lat: 28.6810, lng: 115.8920, day: 1, icon: '🍜', desc: '南昌老城最地道的早午餐街区' },
+  '鱼尾洲湿地公园': { lat: 28.7150, lng: 115.9280, day: 1, icon: '🌿', desc: '水杉林立、白鹭栖息的海绵城市公园' },
+  '滕王阁': { lat: 28.6813, lng: 115.8812, day: 1, icon: '🏯', desc: '江南三大名楼之一，门票¥50/人' },
+
+  // Day 2
+  '八一起义纪念馆': { lat: 28.6747, lng: 115.8894, day: 2, icon: '🏛️', desc: '免费，微信小程序提前7天预约' },
+  '八一广场': { lat: 28.6739, lng: 115.8945, day: 2, icon: '🗼', desc: '南昌城的精神坐标' },
+  '万寿宫历史文化街区': { lat: 28.6790, lng: 115.8870, day: 2, icon: '🏮', desc: '铁柱万寿宫始建于晋代，免费' },
+  '绳金塔': { lat: 28.6610, lng: 115.8950, day: 2, icon: '🗼', desc: '始建于唐代，塔高50米' },
+  '蛤蟆街夜市': { lat: 28.6680, lng: 115.8830, day: 2, icon: '🌙', desc: '南昌最市井的夜间烟火' },
+
+  // Day 3
+  '海昏侯遗址公园': { lat: 29.0301, lng: 115.9398, day: 3, icon: '⚱️', desc: '西汉列侯墓园，门票¥7x/人含观光车' },
+  '佑民寺': { lat: 28.6830, lng: 115.8920, day: 3, icon: '🙏', desc: '千年古寺，免费' },
+
+  // Day 4
+  '八大山人纪念馆': { lat: 28.6430, lng: 115.9180, day: 4, icon: '🎨', desc: '朱耷书画真迹，免费' },
+  '江西省博物馆': { lat: 28.7058, lng: 115.8818, day: 4, icon: '🏛️', desc: '商周青铜器、景德镇瓷器，免费预约' },
+  '南昌之星摩天轮': { lat: 28.6562, lng: 115.8507, day: 4, icon: '🎡', desc: '世界第三高摩天轮，¥4x–50/人' },
+
+  // Day 5
+  '秋水广场': { lat: 28.6620, lng: 115.8530, day: 5, icon: '🌊', desc: '赣江两岸景观带核心节点' }
+};
+
+let map = null;
+let markers = [];
+let routes = [];
+let currentFilter = 'all';
+let mapInitialized = false;
+
+function initMap() {
+  if (mapInitialized) return;
+  mapInitialized = true;
+
+  map = L.map('travelMap', {
+    zoomControl: false
+  }).setView([28.68, 115.88], 12);
+
+  L.control.zoom({ position: 'topright' }).addTo(map);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap',
+    maxZoom: 18
+  }).addTo(map);
+
+  renderMapMarkers();
+  renderMapLegend();
+}
+
+function renderMapMarkers() {
+  // Clear existing
+  markers.forEach(m => map.removeLayer(m));
+  routes.forEach(r => map.removeLayer(r));
+  markers = [];
+  routes = [];
+
+  const daysToShow = currentFilter === 'all' ? [1,2,3,4,5] : [currentFilter];
+
+  daysToShow.forEach(day => {
+    const color = MAP_COLORS[day - 1];
+    const dayLocations = Object.entries(LOCATIONS).filter(([name, loc]) => loc.day === day);
+
+    // Draw route line
+    if (dayLocations.length > 1) {
+      const coords = dayLocations.map(([name, loc]) => [loc.lat, loc.lng]);
+      const polyline = L.polyline(coords, {
+        color: color,
+        weight: 4,
+        opacity: 0.7,
+        dashArray: '8, 6',
+        smoothFactor: 1
+      }).addTo(map);
+      routes.push(polyline);
+    }
+
+    // Add markers
+    dayLocations.forEach(([name, loc], idx) => {
+      const markerHtml = `<div class="marker-icon" style="background:${color};"><span>${loc.icon}</span></div>`;
+      const icon = L.divIcon({
+        html: markerHtml,
+        className: 'custom-marker',
+        iconSize: [32, 32],
+        iconAnchor: [16, 32],
+        popupAnchor: [0, -32]
+      });
+
+      const popupContent = `
+        <div class="popup-title">${loc.icon} ${name}</div>
+        <div class="popup-time">Day ${day} · ${MAP_DAY_NAMES[day-1].split('·')[1]?.trim() || ''}</div>
+        <div class="popup-desc">${loc.desc}</div>
+        <a class="popup-nav" href="https://uri.amap.com/marker?position=${loc.lng},${loc.lat}&name=${encodeURIComponent(name)}" target="_blank">📍 高德导航</a>
+      `;
+
+      const marker = L.marker([loc.lat, loc.lng], { icon })
+        .bindPopup(popupContent, { maxWidth: 280 })
+        .addTo(map);
+      markers.push(marker);
+    });
+  });
+
+  // Fit bounds
+  if (markers.length > 0) {
+    const group = L.featureGroup(markers);
+    map.fitBounds(group.getBounds().pad(0.1));
+  }
+}
+
+function renderMapLegend() {
+  const legend = document.getElementById('mapLegend');
+  if (!legend) return;
+  let html = '<h4>图例</h4>';
+  for (let i = 0; i < 5; i++) {
+    html += `<div class="legend-item" onclick="showDayOnMap(${i+1})">
+      <div class="legend-dot" style="background:${MAP_COLORS[i]}"></div>
+      <span>Day ${i+1}</span>
+    </div>`;
+  }
+  legend.innerHTML = html;
+}
+
+function showDayOnMap(day) {
+  currentFilter = day;
+
+  // Update button states
+  document.querySelectorAll('.map-ctrl-btn').forEach(btn => btn.classList.remove('active'));
+  const btns = document.querySelectorAll('.map-ctrl-btn');
+  if (day === 'all') btns[0].classList.add('active');
+  else btns[day].classList.add('active');
+
+  // Update route info
+  updateRouteInfo(day);
+
+  // Re-render markers
+  if (map) renderMapMarkers();
+}
+
+function updateRouteInfo(day) {
+  const infoEl = document.getElementById('routeInfo');
+  if (!infoEl) return;
+
+  if (day === 'all') {
+    infoEl.innerHTML = '<h3>📍 全部行程</h3><p style="font-size:0.85rem;color:#888;">共 ' + Object.keys(LOCATIONS).length + ' 个地点，覆盖5天行程</p>';
+    return;
+  }
+
+  const dayLocations = Object.entries(LOCATIONS).filter(([name, loc]) => loc.day === day);
+  const color = MAP_COLORS[day - 1];
+
+  let stopsHtml = dayLocations.map(([name, loc], i) => {
+    let html = `<span class="route-stop" onclick="flyToLocation('${name}')">${loc.icon} ${name}</span>`;
+    if (i < dayLocations.length - 1) html += '<span class="route-arrow">→</span>';
+    return html;
+  }).join('');
+
+  infoEl.innerHTML = `
+    <h3 style="color:${color};">Day ${day} · ${MAP_DAY_NAMES[day-1].split('·')[1]?.trim() || ''}</h3>
+    <div class="route-stops">${stopsHtml}</div>
+  `;
+}
+
+function flyToLocation(name) {
+  const loc = LOCATIONS[name];
+  if (!loc || !map) return;
+  map.flyTo([loc.lat, loc.lng], 15, { duration: 1 });
+
+  // Find and open the marker popup
+  markers.forEach(m => {
+    const pos = m.getLatLng();
+    if (Math.abs(pos.lat - loc.lat) < 0.0001 && Math.abs(pos.lng - loc.lng) < 0.0001) {
+      setTimeout(() => m.openPopup(), 500);
+    }
+  });
 }
 
 // ===== NAV SCROLL =====
